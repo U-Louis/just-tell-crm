@@ -1,0 +1,27 @@
+4 Objets : contact, product, estimate, user. each with very few properties.
+  
+views available for each model :
+- simple model list with search bar, export csv, pdf, crud per line (update sends to the detail page)
+- detail page of a model with export PDF, crud, form for updating
+
+view kanban : 3 columns : new, qualified, estimate sent
+
+The goal of the scenario 1 is for a logged in user :
+  - uc1: create a new contact and give it a name (it adds a contact post it to the new kanban view column)
+  - uc2: qualify a contact (which means filling the blank in the form and click validate) (it moves the contact post it to the column qualified)
+  - uc3: create an estimate for the qualified contact with a few lines of products and a grand total, and validate to send an email (it moves the contact to the estimate sent)
+
+uc 4 5 6 7: crud user
+uc 8 9 10 11: crud contact
+uc 12 13 14 15: crud product
+uc 16 17 18 19: crud estimate
+
+uc 20 21 22 23 : export pdf of a model page
+uc 24 25 26 27 : export of a csv off a model list
+
+uc 28 29 30 31 : count total items of a model
+  
+(todo later) uc 32 : complex query formation : a model query crossed with other model queries
+
+
+UI should be very simple, minimum effects. a top bar for navigation. a top right button for selecting the current acting user in the list. pagination for the lists. no fancy view for the emails sent, just text.
