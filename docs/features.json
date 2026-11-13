@@ -1,0 +1,67 @@
+[
+  {
+    "id": "F1",
+    "module": "M1",
+    "category": "functional",
+    "description": "Create a contact named Northwind and see it in the kanban column new.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Create a contact named Northwind.",
+      "See Northwind in the kanban column new."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F2",
+    "module": "M1",
+    "category": "functional",
+    "description": "An empty contact name is refused and no contact is added.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Submit the create-contact form with an empty name.",
+      "See the error code contact.name.required.",
+      "See that no contact named with an empty name was added."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F3",
+    "module": "M1",
+    "category": "functional",
+    "description": "Qualifying Northwind moves that contact to the column qualified.",
+    "steps": [
+      "Open the contact Northwind.",
+      "Fill email northwind@example.com and company Northwind.",
+      "Click Validate.",
+      "See the column qualified."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F4",
+    "module": "M1",
+    "category": "functional",
+    "description": "Sending an estimate moves Northwind to estimate sent and the page shows This is a test.",
+    "steps": [
+      "On the qualified contact Northwind, set Cable quantity to 2 and Lamp quantity to 1.",
+      "See the grand total 25.",
+      "Click Validate estimate.",
+      "See the column estimate sent.",
+      "See the text This is a test."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F5",
+    "module": "M1",
+    "category": "functional",
+    "description": "Sending an estimate for a qualified contact with an empty email is refused and the column stays qualified.",
+    "steps": [
+      "Open a qualified contact whose email is empty.",
+      "Add Cable quantity 2 and Lamp quantity 1 and click Validate estimate.",
+      "See the error code contact.email.required.",
+      "See that the column is still qualified."
+    ],
+    "passes": false
+  }
+]

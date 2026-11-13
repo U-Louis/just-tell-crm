@@ -19,3 +19,13 @@ failed: none
 dead end: none
 artifacts: `docs/intent-questions.md`, `docs/progress.md`
 next: the steward writes G1 in `docs/intent.md`, including the line `Steward G1: accepted`, in a commit this session did not author. Contract S1 does not start until that commit exists. The non-goal candidates in section 10 of `docs/intent-questions.md` are still open, and so is whether one acting user sees every record.
+
+## 2026-11-13 scenario 1 proof of concept
+
+commit: the commit that adds this entry
+contract: POC
+passed: `php artisan test` passed, 14 tests, 186 assertions. Playwright `e2e/scenario-1.spec.ts` passed. In the browser, Ada was selected. An empty name showed `contact.name.required`. Northwind was created in column `new`, qualified with northwind@example.com and company Northwind, and the column became `qualified`. Cable quantity 2 and Lamp quantity 1 showed grand total 25. Validate sent the estimate, the column became `estimate sent`, and the page showed `This is a test.` The board then listed Northwind under `estimate sent`. A second contact, Blank, was qualified with an empty email. Send was refused with `contact.email.required` and the column stayed `qualified`.
+failed: none
+dead end: `php artisan serve` re-executes PHP_BINARY and drops a wrapper's ini flags, so `init.sh` serves with the current `php -S` from `public`. Postgres 18 uses the gitignored bind mount `.pgdata` because a named volume could not initialize. Docker Hub could not pull a new image, so the local `postgres:18` image is used.
+artifacts: the Laravel app, `docs/constitution.md`, `docs/product-specs/M1.md`, `docs/features.json`, `docs/exec-plans/decisions.md`, `AGENTS.md`, `init.sh`, `compose.yaml`
+next: every `passes` value in `docs/features.json` stays false. Boot with `./init.sh`. The origin is `http://127.0.0.1:8000`.

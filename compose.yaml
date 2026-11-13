@@ -1,0 +1,12 @@
+services:
+  postgres:
+    image: postgres:18
+    pull_policy: never
+    environment:
+      POSTGRES_DB: just_tell_crm
+      POSTGRES_USER: just_tell
+      POSTGRES_PASSWORD: just_tell
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.pgdata:/var/lib/postgresql
