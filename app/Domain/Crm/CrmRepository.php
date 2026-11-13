@@ -14,7 +14,12 @@ interface CrmRepository
     /**
      * @return list<Contact>
      */
-    public function listContacts(): array;
+    public function listContacts(int $userId): array;
+
+    /**
+     * @return list<ListedEstimate>
+     */
+    public function listEstimates(int $userId): array;
 
     public function findContact(int $id): ?Contact;
 

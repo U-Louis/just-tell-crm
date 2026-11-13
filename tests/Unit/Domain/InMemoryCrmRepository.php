@@ -5,6 +5,7 @@ namespace Tests\Unit\Domain;
 use App\Domain\Crm\Contact;
 use App\Domain\Crm\CrmRepository;
 use App\Domain\Crm\Estimate;
+use App\Domain\Crm\ListedEstimate;
 use App\Domain\Crm\Product;
 use App\Domain\Crm\SentEmail;
 use App\Domain\Crm\User;
@@ -47,9 +48,27 @@ final class InMemoryCrmRepository implements CrmRepository
         return $this->users[$id] ?? null;
     }
 
-    public function listContacts(): array
+    public function listContacts(int $userId): array
     {
-        return array_values($this->contacts);
+        return array_values(array_filter(
+            $this->contacts,
+            fn (Contact $contact) => $contact->userId === $userId,
+        ));
+    }
+
+    public function listEstimates(int $userId): array
+    {
+        $listed = [];
+        foreach ($this->storedEstimates as $index => $estimate) {
+            $contact = $this->contacts[$estimate->contactId] ?? null;
+            if ($contact === null || $contact->userId !== $userId) {
+                continue;
+            }
+
+            $listed[] = new ListedEstimate($index + 1, $contact->name, $estimate->grandTotal);
+        }
+
+        return $listed;
     }
 
     public function findContact(int $id): ?Contact
@@ -62,6 +81,7 @@ final class InMemoryCrmRepository implements CrmRepository
         $id = $this->contacts === [] ? 1 : max(array_keys($this->contacts)) + 1;
         $stored = new Contact(
             $id,
+            $contact->userId,
             $contact->name,
             $contact->email,
             $contact->company,
@@ -101,6 +121,7 @@ final class InMemoryCrmRepository implements CrmRepository
         $this->sent[] = new SentEmail((int) $contact->id, $to, $body);
         $stored = new Contact(
             $contact->id,
+            $contact->userId,
             $contact->name,
             $contact->email,
             $contact->company,

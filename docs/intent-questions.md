@@ -109,7 +109,7 @@ Open: the page size. The draft says "pagination for the lists" and names no inte
 
 Answered: there is no login and no password. The dropdown chooses the acting user.
 
-Open: whether that acting user sees every contact, product, and estimate, or only some of them. The steward's "no" answered the login. It did not name a visibility rule. That choice changes authorization.
+Answered, in the steward's words: a contact belongs to a user. A filter on the contact list page, the estimate list page, and the kanban restricts them to the acting user's contacts. Creating a contact assigns it to the current acting user. An estimate is listed only when its contact belongs to the acting user. Switching the dropdown changes which contacts and estimates are visible. Products stay shared. The steward did not say a product belongs to a user.
 
 ## 9. What is stored, and each field's protection level — open on purpose
 
@@ -120,9 +120,9 @@ A level, when one is chosen later, answers four things: which page may receive t
 | Holds | Record says it holds | Who can see it | Protection level |
 | --- | --- | --- | --- |
 | User | name | The dropdown lists users | not named |
-| Contact | name, email, company, column | The acting user. Whether another acting user sees the same contact is unstated | not named |
-| Product | name, unit price | Unstated | not named |
-| Estimate | contact, lines of product and quantity, grand total | Unstated | not named |
+| Contact | name, email, company, column, and the user it belongs to | The acting user who owns that contact | not named |
+| Product | name, unit price | Shared. Every acting user can use the products | not named |
+| Estimate | contact, lines of product and quantity, grand total | The acting user who owns the estimate's contact | not named |
 | Email body | The text `This is a test.` | Shown as text. The recipient is the contact's email | not named |
 
 ## 10. Non-goals — partial
@@ -179,7 +179,7 @@ The steward named PostgreSQL, told this session to choose the install command, a
 The outcome is scenario 1, with the properties above. `docs/intent.md` does not exist yet.
 
 1. The non-goal list in section 10. Speech, passwords, a fancy email view, and decorative effects are already out. The candidates under them are not accepted.
-2. Whether the acting user sees every record.
+2. Answered: the acting user sees their own contacts and the estimates for those contacts. Products stay shared.
 3. What happens when uc3 runs and the contact's email is empty.
 4. Whether one contact can have more than one estimate.
 5. Protection levels. The steward left every one open on purpose.

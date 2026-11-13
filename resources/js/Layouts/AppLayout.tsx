@@ -12,8 +12,10 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <header className="flex items-center justify-between gap-4 border-b p-4" data-acting-user={props.actingUser?.name ?? ''}>
                 <div className="flex items-center gap-4">
                     <Link href={props.kanbanUrl}>Just Tell CRM</Link>
-                    <nav>
+                    <nav className="flex items-center gap-4">
                         <Link href={props.kanbanUrl}>Board</Link>
+                        <Link href={props.contactsUrl}>Contacts</Link>
+                        <Link href={props.estimatesUrl}>Estimates</Link>
                     </nav>
                 </div>
                 <ActingUserControl users={props.users} actingUser={props.actingUser} selectUrl={props.selectActingUserUrl} />

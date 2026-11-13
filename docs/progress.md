@@ -29,3 +29,13 @@ failed: none
 dead end: `php artisan serve` re-executes PHP_BINARY and drops a wrapper's ini flags, so `init.sh` serves with the current `php -S` from `public`. Postgres 18 uses the gitignored bind mount `.pgdata` because a named volume could not initialize. Docker Hub could not pull a new image, so the local `postgres:18` image is used.
 artifacts: the Laravel app, `docs/constitution.md`, `docs/product-specs/M1.md`, `docs/features.json`, `docs/exec-plans/decisions.md`, `AGENTS.md`, `init.sh`, `compose.yaml`
 next: every `passes` value in `docs/features.json` stays false. Boot with `./init.sh`. The origin is `http://127.0.0.1:8000`.
+
+## 2026-11-13 contact belongs to the acting user
+
+commit: the commit that adds this entry
+contract: POC
+passed: A contact stores the user who created it. The kanban, the contact list, and the estimate list show only that user's contacts and estimates. Products stay shared. `php artisan test` passed, 16 tests, 306 assertions. Playwright `e2e/scenario-1.spec.ts` passed, including Ben not seeing Northwind. In the browser, Ada saw Northwind on the board, the contact list, and the estimate list, with grand total 25 and the text `This is a test.` Ben's board, contact list, and estimate list did not show Northwind. Opening Ada's contact as Ben showed 404. Cable and Lamp were still on Ada's contact page.
+failed: none
+dead end: none
+artifacts: `docs/intent-questions.md`, `docs/exec-plans/decisions.md`, `docs/features.json`, `docs/product-specs/M1.md`
+next: every `passes` value in `docs/features.json` stays false. Boot with `./init.sh`. The origin is `http://127.0.0.1:8000`.

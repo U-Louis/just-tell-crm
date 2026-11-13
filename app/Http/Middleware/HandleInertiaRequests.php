@@ -51,6 +51,8 @@ class HandleInertiaRequests extends Middleware
             'error' => $error,
             'correlationId' => $request->attributes->get('correlation_id'),
             'kanbanUrl' => route('home'),
+            'contactsUrl' => route('contacts.index'),
+            'estimatesUrl' => route('estimates.index'),
             'selectActingUserUrl' => route('acting-user.store'),
         ]);
     }

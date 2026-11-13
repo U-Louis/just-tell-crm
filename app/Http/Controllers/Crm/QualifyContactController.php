@@ -7,13 +7,15 @@ use App\Domain\Crm\CrmRepository;
 use App\Domain\Crm\QualifyContact;
 use App\Http\CrmLog;
 use App\Http\Requests\QualifyContactRequest;
+use App\Policies\CrmPolicy;
 use Illuminate\Http\RedirectResponse;
 
 final class QualifyContactController
 {
     public function __invoke(QualifyContactRequest $request, int $contact, QualifyContact $action, CrmRepository $crm): RedirectResponse
     {
-        if ($crm->findContact($contact) === null) {
+        $found = $crm->findContact($contact);
+        if ($found === null || ! app(CrmPolicy::class)->viewContact($request->actor(), $found)) {
             abort(404);
         }
 

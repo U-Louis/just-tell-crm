@@ -51,6 +51,7 @@ final class SendEstimate
 
         $sending = new Contact(
             $contact->id,
+            $contact->userId,
             $contact->name,
             $contact->email,
             $contact->company,

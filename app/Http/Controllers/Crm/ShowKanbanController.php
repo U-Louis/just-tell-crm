@@ -3,14 +3,19 @@
 namespace App\Http\Controllers\Crm;
 
 use App\Domain\Crm\CrmRepository;
+use App\Http\ActingUser;
 use App\Http\Props\KanbanPageProps;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 final class ShowKanbanController
 {
-    public function __invoke(CrmRepository $crm): Response
+    public function __invoke(Request $request, CrmRepository $crm, ActingUser $acting): Response
     {
-        return Inertia::render('Kanban', KanbanPageProps::make($crm->listContacts()));
+        $user = $acting->resolve($request);
+        $contacts = $user === null ? [] : $crm->listContacts($user->id);
+
+        return Inertia::render('Kanban', KanbanPageProps::make($contacts));
     }
 }

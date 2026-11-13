@@ -21,6 +21,7 @@ final class CreateContact
 
         return $this->crm->addContact(new Contact(
             null,
+            $actor->id,
             $name,
             null,
             null,

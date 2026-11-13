@@ -18,7 +18,30 @@ export type SharedProps = {
     error: SharedError | null;
     correlationId: string | null;
     kanbanUrl: string;
+    contactsUrl: string;
+    estimatesUrl: string;
     selectActingUserUrl: string;
+};
+
+export type ContactListItem = {
+    id: number;
+    name: string;
+    column: string;
+    showUrl: string;
+};
+
+export type ContactListProps = {
+    contacts: ContactListItem[];
+};
+
+export type EstimateListItem = {
+    id: number;
+    contactName: string;
+    grandTotal: number;
+};
+
+export type EstimateListProps = {
+    estimates: EstimateListItem[];
 };
 
 export type KanbanContact = {

@@ -17,6 +17,6 @@ final class SelectActingUserController
 
         $request->session()->put('acting_user_id', $user->id);
 
-        return back();
+        return redirect()->route('home');
     }
 }

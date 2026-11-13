@@ -24,4 +24,11 @@ test('create, qualify, and send an estimate for Northwind', async ({ page }) => 
     await expect(page.locator('[data-column="estimate sent"]')).toBeVisible();
     await expect(page.locator('[data-saved-grand-total="25"]')).toBeVisible();
     await expect(page.getByText('This is a test.')).toBeVisible();
+
+    await page.getByLabel('Acting user').selectOption({ label: 'Ben' });
+    await page.getByRole('button', { name: 'Select' }).click();
+    await expect(page.locator('[data-acting-user="Ben"]')).toBeVisible();
+    await expect(page.locator('[data-column="new"]')).not.toContainText('Northwind');
+    await expect(page.locator('[data-column="qualified"]')).not.toContainText('Northwind');
+    await expect(page.locator('[data-column="estimate sent"]')).not.toContainText('Northwind');
 });

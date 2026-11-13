@@ -7,13 +7,15 @@ use App\Domain\Crm\CrmRepository;
 use App\Domain\Crm\SendEstimate;
 use App\Http\CrmLog;
 use App\Http\Requests\SendEstimateRequest;
+use App\Policies\CrmPolicy;
 use Illuminate\Http\RedirectResponse;
 
 final class SendEstimateController
 {
     public function __invoke(SendEstimateRequest $request, int $contact, SendEstimate $action, CrmRepository $crm): RedirectResponse
     {
-        if ($crm->findContact($contact) === null) {
+        $found = $crm->findContact($contact);
+        if ($found === null || ! app(CrmPolicy::class)->viewContact($request->actor(), $found)) {
             abort(404);
         }
 

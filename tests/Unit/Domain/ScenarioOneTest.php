@@ -21,8 +21,10 @@ class ScenarioOneTest extends TestCase
         $contact = $action->execute(new Actor(1), 'Northwind');
 
         $this->assertSame('Northwind', $contact->name);
+        $this->assertSame(1, $contact->userId);
         $this->assertSame('new', $contact->column);
-        $this->assertCount(1, $repository->listContacts());
+        $this->assertCount(1, $repository->listContacts(1));
+        $this->assertSame([], $repository->listContacts(2));
     }
 
     public function test_f2_empty_name_writes_nothing(): void
@@ -38,7 +40,7 @@ class ScenarioOneTest extends TestCase
             $this->assertSame('F2', $exception->featureId);
         }
 
-        $this->assertSame([], $repository->listContacts());
+        $this->assertSame([], $repository->listContacts(1));
     }
 
     public function test_f3_qualify_sets_email_company_and_column_qualified(): void
@@ -56,6 +58,7 @@ class ScenarioOneTest extends TestCase
         $this->assertSame('northwind@example.com', $qualified->email);
         $this->assertSame('Northwind', $qualified->company);
         $this->assertSame('qualified', $qualified->column);
+        $this->assertSame(1, $qualified->userId);
     }
 
     public function test_f4_send_sets_estimate_sent_and_records_the_test_body(): void
@@ -64,6 +67,7 @@ class ScenarioOneTest extends TestCase
         $contact = (new CreateContact($repository))->execute(new Actor(1), 'Northwind');
         $repository->saveContact(new Contact(
             $contact->id,
+            $contact->userId,
             'Northwind',
             'northwind@example.com',
             'Northwind',
@@ -90,6 +94,7 @@ class ScenarioOneTest extends TestCase
         $contact = (new CreateContact($repository))->execute(new Actor(1), 'Northwind');
         $repository->saveContact(new Contact(
             $contact->id,
+            $contact->userId,
             'Northwind',
             null,
             'Northwind',
@@ -120,6 +125,7 @@ class ScenarioOneTest extends TestCase
         $contact = (new CreateContact($repository))->execute(new Actor(1), 'Northwind');
         $repository->saveContact(new Contact(
             $contact->id,
+            $contact->userId,
             'Northwind',
             'northwind@example.com',
             'Northwind',
@@ -137,6 +143,31 @@ class ScenarioOneTest extends TestCase
         $this->assertSame('estimate sent', $again->column);
         $this->assertSame('This is a test.', $again->sentEmailBody);
         $this->assertCount(2, $repository->sentEmails());
+    }
+
+    public function test_lists_keep_ada_contacts_and_estimates_off_ben(): void
+    {
+        $repository = $this->repositoryWithProducts();
+        $contact = (new CreateContact($repository))->execute(new Actor(1), 'Northwind');
+        $repository->saveContact(new Contact(
+            $contact->id,
+            $contact->userId,
+            'Northwind',
+            'northwind@example.com',
+            'Northwind',
+            'qualified',
+        ));
+        (new SendEstimate($repository))->execute(new Actor(1), (int) $contact->id, [
+            ['product_id' => 1, 'quantity' => 2],
+            ['product_id' => 2, 'quantity' => 1],
+        ]);
+
+        $this->assertSame(['Northwind'], array_map(fn (Contact $item) => $item->name, $repository->listContacts(1)));
+        $this->assertSame([], $repository->listContacts(2));
+        $this->assertSame('Northwind', $repository->listEstimates(1)[0]->contactName);
+        $this->assertSame(25, $repository->listEstimates(1)[0]->grandTotal);
+        $this->assertSame([], $repository->listEstimates(2));
+        $this->assertSame(['Cable', 'Lamp'], array_map(fn (Product $product) => $product->name, $repository->listProducts()));
     }
 
     private function repositoryWithProducts(): InMemoryCrmRepository

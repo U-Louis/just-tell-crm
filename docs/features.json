@@ -63,5 +63,18 @@
       "See that the column is still qualified."
     ],
     "passes": false
+  },
+  {
+    "id": "F6",
+    "module": "M1",
+    "category": "functional",
+    "description": "Ada sees Northwind on the kanban, the contact list, and the estimate list. Ben does not.",
+    "steps": [
+      "As Ada, create Northwind, qualify it, and send the estimate.",
+      "See Northwind on the kanban, the contact list, and the estimate list.",
+      "Choose Ben as the acting user.",
+      "See that Northwind is absent from the kanban, the contact list, and the estimate list."
+    ],
+    "passes": false
   }
 ]

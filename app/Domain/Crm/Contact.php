@@ -6,6 +6,7 @@ final class Contact
 {
     public function __construct(
         public readonly ?int $id,
+        public readonly int $userId,
         public readonly string $name,
         public readonly ?string $email,
         public readonly ?string $company,
@@ -18,6 +19,7 @@ final class Contact
     {
         return new self(
             $this->id,
+            $this->userId,
             $this->name,
             $email === '' ? null : $email,
             $company === '' ? null : $company,

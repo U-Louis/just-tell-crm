@@ -4,6 +4,7 @@ namespace App\Infrastructure\Persistence\Crm;
 
 use App\Domain\Crm\Contact;
 use App\Domain\Crm\CrmRepository;
+use App\Domain\Crm\ListedEstimate;
 use App\Domain\Crm\Product;
 use App\Domain\Crm\User;
 use App\Models\User as UserRecord;
@@ -29,12 +30,32 @@ final class EloquentCrmRepository implements CrmRepository
         return $user === null ? null : new User($user->id, $user->name);
     }
 
-    public function listContacts(): array
+    public function listContacts(int $userId): array
     {
         return ContactRecord::query()
+            ->where('user_id', $userId)
             ->orderBy('id')
             ->get()
             ->map(fn (ContactRecord $record) => $this->summary($record))
+            ->all();
+    }
+
+    public function listEstimates(int $userId): array
+    {
+        return DB::table('estimates')
+            ->join('contacts', 'contacts.id', '=', 'estimates.contact_id')
+            ->where('contacts.user_id', $userId)
+            ->orderBy('estimates.id')
+            ->get([
+                'estimates.id',
+                'contacts.name as contact_name',
+                'estimates.grand_total',
+            ])
+            ->map(fn (object $row) => new ListedEstimate(
+                (int) $row->id,
+                (string) $row->contact_name,
+                (int) $row->grand_total,
+            ))
             ->all();
     }
 
@@ -48,6 +69,7 @@ final class EloquentCrmRepository implements CrmRepository
     public function addContact(Contact $contact): Contact
     {
         $record = ContactRecord::query()->create([
+            'user_id' => $contact->userId,
             'name' => $contact->name,
             'email' => $contact->email,
             'company' => $contact->company,
@@ -134,6 +156,7 @@ final class EloquentCrmRepository implements CrmRepository
     {
         return new Contact(
             $record->id,
+            (int) $record->user_id,
             $record->name,
             $record->email,
             $record->company,
@@ -148,6 +171,7 @@ final class EloquentCrmRepository implements CrmRepository
 
         return new Contact(
             $record->id,
+            (int) $record->user_id,
             $record->name,
             $record->email,
             $record->company,

@@ -26,6 +26,7 @@ class ScenarioOneTest extends TestCase
         $this->assertDatabaseHas('contacts', [
             'name' => 'Northwind',
             'column' => 'new',
+            'user_id' => $ada->id,
         ]);
 
         $this->withSession(['acting_user_id' => $ada->id])
@@ -136,6 +137,7 @@ class ScenarioOneTest extends TestCase
         $cable = ProductRecord::query()->create(['name' => 'Cable', 'unit_price' => 10]);
         $lamp = ProductRecord::query()->create(['name' => 'Lamp', 'unit_price' => 5]);
         $contact = ContactRecord::query()->create([
+            'user_id' => $ada->id,
             'name' => 'Northwind',
             'email' => null,
             'company' => 'Northwind',
@@ -172,5 +174,101 @@ class ScenarioOneTest extends TestCase
         $response->assertSessionHas('error.code', 'user.required');
         $response->assertSessionHas('error.feature_id', 'F1');
         $this->assertDatabaseCount('contacts', 0);
+    }
+
+    public function test_kanban_contact_list_and_estimate_list_show_only_the_acting_users_records(): void
+    {
+        $ada = User::factory()->create(['name' => 'Ada']);
+        $ben = User::factory()->create(['name' => 'Ben']);
+        $cable = ProductRecord::query()->create(['name' => 'Cable', 'unit_price' => 10]);
+        $lamp = ProductRecord::query()->create(['name' => 'Lamp', 'unit_price' => 5]);
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->post(route('contacts.store'), ['name' => 'Northwind']);
+        $contactId = (int) ContactRecord::query()->where('name', 'Northwind')->value('id');
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->post(route('contacts.qualify', $contactId), [
+                'email' => 'northwind@example.com',
+                'company' => 'Northwind',
+            ]);
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->post(route('contacts.estimates.store', $contactId), [
+                'lines' => [
+                    ['product_id' => $cable->id, 'quantity' => 2],
+                    ['product_id' => $lamp->id, 'quantity' => 1],
+                ],
+            ]);
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->get(route('home'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Kanban')
+                ->where('columns.2.contacts.0.name', 'Northwind'));
+
+        $this->withSession(['acting_user_id' => $ben->id])
+            ->get(route('home'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Kanban')
+                ->where('columns.0.contacts', [])
+                ->where('columns.1.contacts', [])
+                ->where('columns.2.contacts', []));
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->get(route('contacts.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Contacts/Index')
+                ->where('contacts.0.name', 'Northwind')
+                ->where('contacts.0.column', 'estimate sent')
+                ->missing('contacts.0.email'));
+
+        $this->withSession(['acting_user_id' => $ben->id])
+            ->get(route('contacts.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Contacts/Index')
+                ->where('contacts', []));
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->get(route('estimates.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Estimates/Index')
+                ->where('estimates.0.contactName', 'Northwind')
+                ->where('estimates.0.grandTotal', 25)
+                ->missing('estimates.0.email'));
+
+        $this->withSession(['acting_user_id' => $ben->id])
+            ->get(route('estimates.index'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Estimates/Index')
+                ->where('estimates', []));
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->get(route('contacts.show', $contactId))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('products.0.name', 'Cable')
+                ->where('products.1.name', 'Lamp'));
+
+        $this->withSession(['acting_user_id' => $ben->id])
+            ->get(route('contacts.show', $contactId))
+            ->assertNotFound();
+
+        $this->withSession(['acting_user_id' => $ben->id])
+            ->post(route('contacts.qualify', $contactId), [
+                'email' => 'other@example.com',
+                'company' => 'Other',
+            ])
+            ->assertNotFound();
+
+        $this->assertDatabaseHas('contacts', [
+            'id' => $contactId,
+            'user_id' => $ada->id,
+            'email' => 'northwind@example.com',
+            'column' => 'estimate sent',
+        ]);
     }
 }
