@@ -1,83 +1,88 @@
 # Just Tell CRM: questions the steward answers before G1
 
-A logged-in user creates a contact, qualifies it, and sends an estimate. The draft leaves the keyboard, the fields, and the login open.
+A person picks a user from a dropdown, creates a contact, qualifies it, and sends that contact a test email. Speech waits for v2.
 
-The glimpse is the repository description plus the file `draft`. The description says: "A simple crm app with the most basic features. Except this one doesn't require a keyboard: you just tell it what to do." The draft is injected, unchanged, as the first spec at `docs/product-specs/draft.md`. This file records what that text states and what it leaves open. The steward accepts intent by writing `docs/intent.md` in a commit this session did not author.
+The glimpse is the repository description plus the file `draft`. The description says: "A simple crm app with the most basic features. Except this one doesn't require a keyboard: you just tell it what to do." The draft is injected, unchanged, as the first spec at `docs/product-specs/draft.md`. The steward answered on 2026-11-13. This file records the draft and those answers. The steward accepts intent by writing `docs/intent.md` in a commit this session did not author.
 
-S0 may write this file and `docs/progress.md`. The injected spec is the draft the steward asked to place. It is not an accepted slice spec. `docs/intent.md` stays the steward's G1 file.
+S0 may write this file and `docs/progress.md`. The injected spec stays the draft. It is not an accepted slice spec. `docs/intent.md` stays the steward's G1 file.
 
 The product name is Just Tell CRM. The GitHub repository is `just-tell-crm`. The workspace directory on disk is `just-tell-crm`.
 
-Marks: **answered** means the record states it. **Partial** means the record states part and leaves a choice open. **Open** means the record does not state it. Quotes are the draft's words, or the repository description where noted.
+Marks: **answered** means the record states it. **Partial** means the record states part and leaves a choice open. **Open** means the record does not state it. Quotes are the draft's words, the repository description, or the steward's words. A line that says "made up" is a property this session wrote because the steward said "make up some properties."
 
-## 1. Outcome and actors — partial
+## 1. Outcome and actors — answered
 
-Answered:
+- Scenario 1 is for the acting user: create a contact, qualify it, and send an estimate email.
+- The four objects are contact, product, estimate, and user.
+- The contact does not sign in. The contact is the kanban card and the recipient of the email.
+- The steward: speech is v2. This version does not include it.
+- The steward: the person uses a dropdown of users. A click makes that user the acting user. There is no password.
 
-- Scenario 1 is "for a logged in user."
-- That user creates a contact, qualifies it, and creates an estimate that sends an email. The three sentences are uc1, uc2, and uc3 in section 5.
-- The draft names four objects: "contact, product, estimate, user. each with very few properties."
-- A control selects "the current acting user in the list."
+The draft's words "a logged in user" are this acting user.
 
-The contact is the thing that moves across the kanban. The draft does not say the contact signs in, or that the contact is a user of the app. The user is a separate object.
+## 2. Keyboard or speech — answered
 
-Open: whether anyone besides that logged-in user acts in the product. A customer who only receives the email is not named as an actor.
+This version uses the draft's forms: a search bar, a form, a click on validate, pagination, a top bar, and the user dropdown.
 
-## 2. Keyboard or speech — open
+The steward: "speech will on v2, dont mind yet." Speech, a microphone, and telling the app what to do are out of this version.
 
-The repository description says the app does not require a keyboard: "you just tell it what to do."
+## 3. The four objects and their properties — answered, made up
 
-The draft describes a search bar, a form, a click on validate, pagination, a top bar, and a button. It never uses the words speech, microphone, voice, or keyboard.
+The steward said "make up some properties." The list below is that invention. It stays the record until the steward changes a line.
 
-Which surface scenario 1 uses is open. The two texts disagree, and this session does not pick one.
+Contact:
 
-## 3. The four objects and their properties — partial
+- name. Set when the contact is created.
+- email. The address the test email is sent to.
+- company. The qualify blank, made up.
+- column. `new`, `qualified`, or `estimate sent`.
 
-Answered: the objects are contact, product, estimate, and user. "each with very few properties."
+Product:
 
-The draft names one property: the contact's name, in uc1 ("give it a name"). An estimate has "a few lines of products and a grand total." Qualify means "filling the blank in the form."
+- name.
+- unit price. A number. The currency name is not chosen.
 
-Open, and this changes the data class:
+Estimate:
 
-- Which properties each object stores, beyond the contact's name and the estimate's lines and grand total.
-- Which blanks the qualify form fills.
-- What a product line stores (which product, a quantity, a price, or something else).
-- How the grand total is obtained.
-- What "a few" lines means, as a number or as unbounded.
-- What the user object stores (a name, an email, a password, or something else).
+- the contact it belongs to.
+- lines. Each line is one product and a quantity. Quantity is a whole number, made up. No maximum number of lines is named.
+- grand total. Made up as the sum of each line's quantity multiplied by that product's unit price.
 
-## 4. Kanban — partial
+User:
 
-Answered: "view kanban : 3 columns : new, qualified, estimate sent."
+- name. The dropdown shows this name. No email and no password.
 
-- uc1 "adds a contact post it to the new kanban view column."
-- uc2 "moves the contact post it to the column qualified."
-- uc3 "moves the contact to the estimate sent."
+Qualify means filling email and company and clicking validate. That stores those two and sets column to `qualified`. The draft states no refusal when a blank is left empty. No error code is invented here.
 
-The words "contact post it" are the draft's. One reading is a post-it on the board. Another is that the app posts the contact into the column. This session does not pick a reading.
+## 4. Kanban — answered
 
-Open:
+The steward: "it is a contact, the colum it is at in the kanban should be a prop."
 
-- Whether the column is stored on the contact.
-- Whether a contact can sit in a column without uc1, uc2, or uc3.
-- Whether the kanban is only for contacts. The draft describes that view once, and every move names the contact.
-- Whether a contact can have more than one estimate. uc3 creates "an estimate" and then moves the contact.
+The kanban card is the contact. `column` is a property of that contact. The three values are the draft's columns: `new`, `qualified`, `estimate sent`.
 
-## 5. Scenario 1 — answered as the goal
+- uc1 creates the contact with a name and sets `column` to `new`.
+- uc2 sets `column` to `qualified`.
+- uc3 sets `column` to `estimate sent`.
 
-The draft calls these three the goal of scenario 1.
+The kanban shows contacts. The draft describes that view once, and this answer attaches the column to the contact.
 
-- uc1: "create a new contact and give it a name (it adds a contact post it to the new kanban view column)."
-- uc2: "qualify a contact (which means filling the blank in the form and click validate) (it moves the contact post it to the column qualified)."
-- uc3: "create an estimate for the qualified contact with a few lines of products and a grand total, and validate to send an email (it moves the contact to the estimate sent)."
+Open: whether one contact can have more than one estimate. uc3 says "an estimate."
 
-Open: an example name, who receives the email, and what the email text says. The draft says the sent email is "just text" and that there is "no fancy view for the emails sent." It does not show a sample sentence.
+## 5. Scenario 1 — answered
 
-The draft states no refusal. It states no error code, no empty-name rule, and no case where validate does nothing.
+- uc1: create a contact, give it a name, and it stands in the column `new`.
+- uc2: fill email and company, click validate, and the contact stands in `qualified`.
+- uc3: create an estimate for that qualified contact, with lines of products and the made-up grand total, and validate. That sends the email and sets `column` to `estimate sent`.
+
+The steward: "the email should be on the contact, the text says that it is a test."
+
+The message goes to the contact's email address. The body is the text `This is a test.` The page that shows a sent email shows that text, with no fancy view.
+
+Open: what uc3 does when the contact's email is empty. No refusal code is named.
 
 ## 6. The other use cases — partial
 
-The draft lists these without assigning a verb to a number:
+Unchanged from the draft:
 
 - "uc 4 5 6 7: crud user"
 - "uc 8 9 10 11: crud contact"
@@ -88,67 +93,67 @@ The draft lists these without assigning a verb to a number:
 - "uc 28 29 30 31 : count total items of a model"
 - "(todo later) uc 32 : complex query formation : a model query crossed with other model queries"
 
-The list view says "crud per line (update sends to the detail page)." Update is one of the crud actions, and it opens the detail page. Which of the four numbers is create, read, update, or delete is not stated.
+Update on a list line opens the detail page. Which of the four crud numbers is create, read, update, or delete is not stated. Whether each export number and each count number is one of the four objects is a reading.
 
-Four numbers are given for pdf, four for csv, and four for the count, and four models are named. Whether each number is one model is a reading. The draft does not say it.
+Open: where the count is shown, whether it counts the whole object or the current search, and which fields a pdf or a csv contains.
 
-uc32 is marked "todo later." It is deferred by the draft. It is not a confirmed non-goal until the steward says this version excludes it.
+## 7. Views and UI — partial
 
-Open: where the count is shown, whether the count is the whole model or the current search, which fields a pdf or a csv contains, and which list the csv exports (the full list, or the search result).
+The list, the detail page, the kanban, the top bar, and pagination stay as the draft wrote them.
 
-## 7. Views and UI — answered as far as the draft goes
+The top-right control is a dropdown of users. A click on one user makes that user the acting user.
 
-"views available for each model :
+Open: the page size. The draft says "pagination for the lists" and names no integer. Which fields the search bar matches is not stated.
 
-- simple model list with search bar, export csv, pdf, crud per line (update sends to the detail page)
-- detail page of a model with export PDF, crud, form for updating"
+## 8. Who may see a fact — partial
 
-"UI should be very simple, minimum effects. a top bar for navigation. a top right button for selecting the current acting user in the list. pagination for the lists. no fancy view for the emails sent, just text."
+Answered: there is no login and no password. The dropdown chooses the acting user.
 
-Open: the page size, which fields the search bar matches, and where the email text is shown. No pixel width and no component library are named. This session does not choose one.
+Open: whether that acting user sees every contact, product, and estimate, or only some of them. The steward's "no" answered the login. It did not name a visibility rule. That choice changes authorization.
 
-## 8. Who may see a fact — open
+## 9. What is stored, and each field's protection level — open on purpose
 
-The draft says the actor is "a logged in user" and that a button selects "the current acting user in the list."
+The steward: "all open for now." Every protection level stays unnamed. No field is marked `public`, `account`, or `secret`.
 
-It does not say whether selecting a user is the login, or whether a password exists beside that button. It does not say whether one user sees another user's contacts, products, or estimates.
-
-This choice changes authorization. It stays a question.
-
-## 9. What is stored, and each field's protection level — open
-
-The record names what is held. No protection level is chosen.
-
-Each stored row needs four answers. The names `public`, `account`, and `secret` are labels for a bundle of those four. A product may keep those names. The gate wants the four answers.
-
-- **Return.** Which page is allowed to receive the value.
-- **Log.** Whether a server log may contain it.
-- **Retention.** How long it is kept, or that no duration is named.
-- **Access.** Which actor may read or write it.
+A level, when one is chosen later, answers four things: which page may receive the value, whether a server log may contain it, how long it is kept, and which actor may read or write it.
 
 | Holds | Record says it holds | Who can see it | Protection level |
 | --- | --- | --- | --- |
-| Contact | A name. Other properties are "very few" and unnamed. A kanban column after uc1, uc2, or uc3 | The logged-in user. Whether another user sees it is unstated | not named |
-| Product | Unnamed properties. It appears as a line on an estimate | Unstated | not named |
-| Estimate | A few lines of products, a grand total, and a sent email that is text | Unstated. uc3 sends an email | not named |
-| User | Unnamed. The acting user is chosen from "the list" | Unstated | not named |
-| Email text | "just text" | Unstated. Who receives it is unstated | not named |
+| User | name | The dropdown lists users | not named |
+| Contact | name, email, company, column | The acting user. Whether another acting user sees the same contact is unstated | not named |
+| Product | name, unit price | Unstated | not named |
+| Estimate | contact, lines of product and quantity, grand total | Unstated | not named |
+| Email body | The text `This is a test.` | Shown as text. The recipient is the contact's email | not named |
 
-## 10. Non-goals — open
+## 10. Non-goals — partial
 
-The draft states two limits: "minimum effects," and "no fancy view for the emails sent, just text." uc32 is "todo later."
+The question "list of what?" asks for the list of things this version will not build. A later session treats a named non-goal as out of scope. The list is those exclusions, not a list of screens or a list of the four objects.
 
-A closed non-goal list is absent. These are candidates only, and none is accepted here: payments, file attachments, teams, an API token, a second mail channel, and a speech surface. Speech stays a candidate until section 2 is answered. Confirming any of them is the steward's G1 text.
+Already out of this version, from the draft or from the steward:
+
+- Speech. The steward put it on v2.
+- A password, and any login.
+- A fancy view of a sent email. The draft says "just text."
+- Decorative effects. The draft says "minimum effects."
+
+These are candidates only. None is accepted:
+
+- Taking payment.
+- File attachments.
+- Teams.
+- An API token for another program.
+- A second way to send mail.
+- uc32, the crossed-model query. The draft says "todo later."
 
 ## Constitution blanks
 
-The record states no legal value for any field below. Each stays `unset`. "A logged in user" and the button that selects the acting user are not a value of `login-mechanism`. The legal values are Breeze, Jetstream, Fortify, or hand-rolled. This session does not pick one, and it does not pick PostgreSQL, MySQL, SQLite, or an install command.
+The steward named PostgreSQL, told this session to choose the install command, and said "no login mech." Every other field stays `unset`.
 
 | Field | Legal values | While `unset` | This record |
 | --- | --- | --- | --- |
-| `storage-engine` | PostgreSQL, MySQL, or SQLite | M1 does not start | `unset` |
-| `install-command` | Exact non-interactive command, `laravel/framework` ^12, into this repository root | M1 plan stops | `unset` |
-| `login-mechanism` | Breeze, Jetstream, Fortify, or hand-rolled | M1 does not keep an unwired starter login, and M2 does not start | `unset` |
+| `storage-engine` | PostgreSQL, MySQL, or SQLite | M1 does not start | PostgreSQL. The install command does not start the database. The application connection is `pgsql` |
+| `install-command` | Exact non-interactive command, `laravel/framework` ^12, into this repository root | M1 plan stops | From this repository root: `d=$(mktemp -d) && composer create-project laravel/react-starter-kit:^1.0.1 "$d" --no-interaction --prefer-dist && cp -a "$d"/. . && rm -rf "$d"`. The steward said "install cmd whatever." This session wrote the command. Packagist release 1.0.1 requires `laravel/framework` ^12.0 and `inertiajs/inertia-laravel` ^2.0, and the kit's React is 19 with TypeScript. The root is not empty, so the command installs beside the tree and copies in. `docs/` stays. The kit also ships Fortify, with login, registration, and password reset. That Fortify login is not the product. `login-mechanism` stays none |
+| `login-mechanism` | Breeze, Jetstream, Fortify, or hand-rolled | M1 does not keep an unwired starter login, and M2 does not start | none. The steward said "no login mech." The acting user is the dropdown. None of Breeze, Jetstream, Fortify, or hand-rolled is this answer |
 | `complexity-score` | `crap` or `cognitive` | Report cyclomatic complexity, CRAP, and cognitive complexity. Neither blocks | `unset` |
 | `complexity-ceiling` | A number the steward names | The score does not block | `unset` |
 | `complexity-tools` | The commands two sessions will run | Evidence says the tool is unset. No package is added in order to measure | `unset` |
@@ -171,16 +176,14 @@ The record states no legal value for any field below. Each stays `unset`. "A log
 
 ## Still open before G1
 
-The recipe's stage-0 hard stop is an outcome or non-goals missing from `docs/intent.md`. The draft supplies scenario 1 as an outcome. It does not supply a closed non-goal list.
+The outcome is scenario 1, with the properties above. `docs/intent.md` does not exist yet.
 
-1. Keyboard or speech. The description says you just tell it. The draft describes forms and a validate click.
-2. The properties of contact, product, estimate, and user, including the qualify blanks, a product line, and the grand total.
-3. Whether "contact post it" is a post-it, and whether the kanban column is stored on the contact.
-4. Who receives the email, and the text that is shown.
-5. Whether selecting the acting user is the login, and whether one user sees another user's records.
-6. A protection level for each stored field.
-7. Which non-goals are accepted, including whether uc32 stays out of this version.
-8. The constitution fields in the table above. `storage-engine`, `install-command`, and `login-mechanism` stop M1 while they stay `unset`.
+1. The non-goal list in section 10. Speech, passwords, a fancy email view, and decorative effects are already out. The candidates under them are not accepted.
+2. Whether the acting user sees every record.
+3. What happens when uc3 runs and the contact's email is empty.
+4. Whether one contact can have more than one estimate.
+5. Protection levels. The steward left every one open on purpose.
+6. The constitution fields that are still `unset` in the table above. `storage-engine`, `install-command`, and `login-mechanism` now have values.
 
 ## Already fixed by the recipe this session was told to apply
 
