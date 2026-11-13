@@ -1,0 +1,56 @@
+services:
+  postgres:
+    image: postgres:18
+    pull_policy: never
+    environment:
+      POSTGRES_DB: just_tell_crm
+      POSTGRES_USER: just_tell
+      POSTGRES_PASSWORD: just_tell
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./.pgdata:/var/lib/postgresql
+
+  app:
+    build:
+      context: .
+      args:
+        PHP_IMAGE: ${PHP_IMAGE:-php:8.4-cli}
+    image: just-tell-crm:dev
+    pull_policy: never
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    environment:
+      # DB_HOST only. The other database settings stay in .env (pgsql,
+      # just_tell_crm). Putting DB_CONNECTION here hides phpunit.xml, because
+      # Laravel reads $_SERVER first, and RefreshDatabase then wipes Postgres.
+      DB_HOST: postgres
+      APP_URL: http://127.0.0.1:8000
+    depends_on:
+      postgres:
+        condition: service_started
+    # The base image checks FrankenPHP's admin port. This process is artisan serve.
+    healthcheck:
+      disable: true
+    # --no-reload keeps Compose env (DB_HOST=postgres). Without it, artisan serve
+    # drops those variables and the process reads DB_HOST=127.0.0.1 from .env.
+    command: ["php", "artisan", "serve", "--no-reload", "--host=0.0.0.0", "--port=8000"]
+
+  vite:
+    image: just-tell-crm:dev
+    pull_policy: never
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "5173:5173"
+    environment:
+      APP_URL: http://127.0.0.1:8000
+    depends_on:
+      - app
+    healthcheck:
+      disable: true
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]

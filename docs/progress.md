@@ -39,3 +39,13 @@ failed: none
 dead end: none
 artifacts: `docs/intent-questions.md`, `docs/exec-plans/decisions.md`, `docs/features.json`, `docs/product-specs/M1.md`
 next: every `passes` value in `docs/features.json` stays false. Boot with `./init.sh`. The origin is `http://127.0.0.1:8000`.
+
+## 2026-11-13 container boot
+
+commit: the commit that adds this entry
+contract: POC
+passed: `./init.sh` starts Postgres, the PHP app, and the Vite dev server, and prints `origin http://127.0.0.1:8000`. A second run migrated, seeded, and left Northwind in column `estimate sent`. `docker compose exec app php artisan test` passed, 16 tests, 306 assertions, on sqlite. The page loaded its script from `http://127.0.0.1:5173`. In the browser, Ada was selected. Northwind was created, qualified with northwind@example.com and company Northwind, then sent with Cable quantity 2 and Lamp quantity 1. The column became `estimate sent`, the page showed `This is a test.`, and the saved grand total was 25. Ada's contact list and estimate list showed Northwind. Ben was selected. Ben's board, contact list, and estimate list did not show Northwind. Opening `/contacts/6` as Ben showed 404.
+failed: none
+dead end: The first in-container test run had `DB_CONNECTION=pgsql` in the process environment. Laravel reads `$_SERVER` before PHPUnit's sqlite value, so RefreshDatabase wiped the Postgres rows. Compose now sets only `DB_HOST=postgres`, and `tests/bootstrap.php` copies the PHPUnit database values onto `$_SERVER`. `artisan serve` needs `--no-reload`, or it drops `DB_HOST` and the app dials 127.0.0.1. Docker Hub still has no username, so the image is built from the local PHP 8.4 image and Node 22 is downloaded from nodejs.org.
+artifacts: `Dockerfile`, `.dockerignore`, `docker-compose.yml`, `init.sh`, `vite.config.js`, `phpunit.xml`, `tests/bootstrap.php`, `.env.example`, `AGENTS.md`, `docs/exec-plans/decisions.md`, `docs/product-specs/M1.md`
+next: every `passes` value in `docs/features.json` stays false. Boot with `./init.sh`. The origin is `http://127.0.0.1:8000`.

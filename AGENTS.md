@@ -8,13 +8,13 @@ Read `docs/constitution.md` before editing.
 
 ## Boot and checks
 
-- `docker compose up -d` starts Postgres when it is not already running. `init.sh` does this when docker is available.
-- `./init.sh` prints `origin http://127.0.0.1:8000`, migrates, seeds, and serves. A second run does not drop the database.
-- `php artisan test`
+- `./init.sh` is the boot. Docker runs Postgres, the PHP app, and the Vite dev server. A second run migrates and serves and does not drop the database. It prints `origin http://127.0.0.1:8000`.
+- The host does not need PHP, Composer, or Node for that boot.
+- `docker compose exec app php artisan test`
 - `npx playwright test`
-- `vendor/bin/pint --test`
+- `docker compose exec app vendor/bin/pint --test`
 
-PHP needs `mbstring`, `dom`, `pdo_pgsql`, and `pdo_sqlite`.
+The app image needs PHP `mbstring`, `dom`, `pdo_pgsql`, and `pdo_sqlite`.
 
 ## Where to read
 
