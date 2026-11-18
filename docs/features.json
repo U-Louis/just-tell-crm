@@ -76,5 +76,410 @@
       "See that Northwind is absent from the kanban, the contact list, and the estimate list."
     ],
     "passes": false
+  },
+  {
+    "id": "F7",
+    "module": "M1",
+    "category": "functional",
+    "description": "Create a user named Dana and see that user in the user list. The count includes Dana.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Create a user named Dana.",
+      "See Dana on the user list.",
+      "See the count include Dana."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F8",
+    "module": "M1",
+    "category": "functional",
+    "description": "An empty user name is refused and no user is added.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Submit the create-user form with an empty name.",
+      "See the error code user.name.required.",
+      "See that no user with an empty name was added."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F9",
+    "module": "M1",
+    "category": "functional",
+    "description": "A duplicate user name is refused.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Submit the create-user form with the name Ada.",
+      "See the error code user.name.taken.",
+      "See that a second Ada was not added."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F10",
+    "module": "M1",
+    "category": "functional",
+    "description": "Update a user's name.",
+    "steps": [
+      "Open the user Ada.",
+      "Change the name to Ada Lovelace and update.",
+      "See the name Ada Lovelace."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F11",
+    "module": "M1",
+    "category": "functional",
+    "description": "Deleting a user who still owns a contact is refused and the user stays.",
+    "steps": [
+      "As Ada, create a contact.",
+      "Delete the user Ada.",
+      "See the error code user.delete.blocked.",
+      "See that Ada is still a user."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F12",
+    "module": "M1",
+    "category": "functional",
+    "description": "Deleting a user who owns no contact removes that user and clears the acting user when it was that user.",
+    "steps": [
+      "Create a user named Dana who owns no contact.",
+      "Choose Dana as the acting user.",
+      "Delete Dana.",
+      "See that Dana is gone and the acting user is cleared."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F13",
+    "module": "M1",
+    "category": "functional",
+    "description": "Update a contact name, email, and company. The column stays and no email is sent.",
+    "steps": [
+      "Open a contact in column estimate sent.",
+      "Change the name, clear the email, and clear the company.",
+      "See the new name.",
+      "See the column estimate sent.",
+      "See that no new email was sent."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F14",
+    "module": "M1",
+    "category": "functional",
+    "description": "An empty contact name on update is refused.",
+    "steps": [
+      "Open a contact.",
+      "Submit the update form with an empty name.",
+      "See the error code contact.name.required.",
+      "See that the stored name did not change."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F15",
+    "module": "M1",
+    "category": "functional",
+    "description": "Delete a contact and its estimates, estimate lines, and sent emails. Another user's contact stays 404.",
+    "steps": [
+      "As Ada, open Northwind after the estimate was sent.",
+      "As Ben, open that contact and see 404.",
+      "As Ada, delete the contact.",
+      "See that the contact, its estimates, its lines, and its sent emails are gone."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F16",
+    "module": "M1",
+    "category": "functional",
+    "description": "Create a product with a name and a unit price and see it in the product list. The count includes it.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Create a product named Plug with unit price 3.",
+      "See Plug on the product list.",
+      "See the count include Plug."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F17",
+    "module": "M1",
+    "category": "functional",
+    "description": "An empty product name is refused.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Submit the create-product form with an empty name.",
+      "See the error code product.name.required."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F18",
+    "module": "M1",
+    "category": "functional",
+    "description": "A duplicate product name is refused.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Submit a product named Cable when Cable already exists.",
+      "See the error code product.name.taken."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F19",
+    "module": "M1",
+    "category": "functional",
+    "description": "A product unit price that is not an unsigned integer is refused.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Submit a product with a negative unit price.",
+      "See the error code product.unit_price.invalid."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F20",
+    "module": "M1",
+    "category": "functional",
+    "description": "A product price change does not rewrite stored line prices or past grand totals.",
+    "steps": [
+      "Send an estimate with Cable quantity 2 and Lamp quantity 1. The grand total is 25.",
+      "Change Cable's unit price to 12.",
+      "See the stored Cable line unit price still 10.",
+      "See the saved grand total still 25."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F21",
+    "module": "M1",
+    "category": "functional",
+    "description": "Deleting a product that is on an estimate line is refused.",
+    "steps": [
+      "Send an estimate that uses Cable.",
+      "Delete Cable.",
+      "See the error code product.delete.blocked.",
+      "See that Cable is still a product."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F22",
+    "module": "M1",
+    "category": "functional",
+    "description": "Update an estimate's quantities. The grand total is recomputed from current product prices. The column stays and no email is sent.",
+    "steps": [
+      "Change Cable's unit price to 12 after an estimate was sent.",
+      "Update that estimate to Cable quantity 1.",
+      "See the grand total 12.",
+      "See the stored line unit price 12.",
+      "See the column still estimate sent.",
+      "See that no new email was sent."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F23",
+    "module": "M1",
+    "category": "functional",
+    "description": "An estimate update with no quantity of at least 1 is refused.",
+    "steps": [
+      "Open an estimate.",
+      "Set every quantity to 0 and update.",
+      "See the error code estimate.lines.required.",
+      "See that the saved grand total did not change."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F24",
+    "module": "M1",
+    "category": "functional",
+    "description": "Delete an estimate and its lines. The contact column stays and the sent email stays.",
+    "steps": [
+      "Open an estimate whose contact is estimate sent.",
+      "Delete the estimate.",
+      "See that the estimate and its lines are gone.",
+      "See the column still estimate sent.",
+      "See the sent email still on the contact."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F25",
+    "module": "M1",
+    "category": "functional",
+    "description": "The user PDF response is application/pdf.",
+    "steps": [
+      "Open a user.",
+      "Follow the PDF link.",
+      "See a PDF file."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F26",
+    "module": "M1",
+    "category": "functional",
+    "description": "The contact PDF response is application/pdf and may include email, company, column, and This is a test. after a send.",
+    "steps": [
+      "Open a contact after the estimate was sent.",
+      "Follow the PDF link.",
+      "See a PDF file."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F27",
+    "module": "M1",
+    "category": "functional",
+    "description": "The product PDF response is application/pdf.",
+    "steps": [
+      "Open a product.",
+      "Follow the PDF link.",
+      "See a PDF file."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F28",
+    "module": "M1",
+    "category": "functional",
+    "description": "The estimate PDF response is application/pdf.",
+    "steps": [
+      "Open an estimate.",
+      "Follow the PDF link.",
+      "See a PDF file."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F29",
+    "module": "M1",
+    "category": "functional",
+    "description": "The user CSV is text/csv, the header matches the list, and a search downloads the matching rows rather than only the current page.",
+    "steps": [
+      "Create more users than one page.",
+      "Download the user CSV.",
+      "See the header row name.",
+      "See every user, not only the first page.",
+      "Search for one name and download the CSV.",
+      "See that name and not the other users."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F30",
+    "module": "M1",
+    "category": "functional",
+    "description": "The contact CSV header is name and column. Email stays off the CSV.",
+    "steps": [
+      "Open the contact list.",
+      "Download the contact CSV.",
+      "See the header name,column.",
+      "See that the contact email is absent."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F31",
+    "module": "M1",
+    "category": "functional",
+    "description": "The product CSV is text/csv with name and unit price.",
+    "steps": [
+      "Open the product list.",
+      "Download the product CSV.",
+      "See the header name,unit_price."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F32",
+    "module": "M1",
+    "category": "functional",
+    "description": "The estimate CSV is text/csv with the contact name and grand total.",
+    "steps": [
+      "Open the estimate list.",
+      "Download the estimate CSV.",
+      "See the header name,grand_total.",
+      "See the contact name and grand total."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F33",
+    "module": "M1",
+    "category": "functional",
+    "description": "The user count is every user. It ignores search and the current page. The page size is 15.",
+    "steps": [
+      "Create 16 users.",
+      "Open the user list.",
+      "See 15 rows and a next page.",
+      "See the count 16.",
+      "Search for a name that matches one user.",
+      "See one row and the count still 16."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F34",
+    "module": "M1",
+    "category": "functional",
+    "description": "The contact count is the acting user's contacts. It ignores search and the current page.",
+    "steps": [
+      "As Ada, create two contacts.",
+      "Search the contact list for one name.",
+      "See the count 2.",
+      "Choose Ben.",
+      "See Ben's own count, without Ada's contacts."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F35",
+    "module": "M1",
+    "category": "functional",
+    "description": "The product count is every product. It ignores search and the current page.",
+    "steps": [
+      "Open the product list.",
+      "See the count of every product.",
+      "Search for one product name.",
+      "See the count unchanged."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F36",
+    "module": "M1",
+    "category": "functional",
+    "description": "The estimate count is the acting user's estimates. Search matches the contact name only.",
+    "steps": [
+      "As Ada, send an estimate for Northwind.",
+      "Search the estimate list for Cable.",
+      "See no row and the count still 1.",
+      "Search for Northwind.",
+      "See that estimate.",
+      "Choose Ben.",
+      "See a count of 0."
+    ],
+    "passes": false
+  },
+  {
+    "id": "F37",
+    "module": "M1",
+    "category": "functional",
+    "description": "Deleting a product that is on no estimate line removes that product.",
+    "steps": [
+      "Create a product that is not on an estimate.",
+      "Delete that product.",
+      "See that the product is gone."
+    ],
+    "passes": false
   }
 ]

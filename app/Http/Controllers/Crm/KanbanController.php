@@ -9,9 +9,9 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
-final class ShowKanbanController
+final class KanbanController
 {
-    public function __invoke(Request $request, CrmRepository $crm, ActingUser $acting): Response
+    public function index(Request $request, CrmRepository $crm, ActingUser $acting): Response
     {
         $user = $acting->resolve($request);
         $contacts = $user === null ? [] : $crm->listContacts($user->id);

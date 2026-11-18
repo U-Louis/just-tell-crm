@@ -1,41 +1,66 @@
-import { Link, usePage } from '@inertiajs/react';
-import type { ReactNode } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Link, usePage } from '@inertiajs/react';
+import type { ReactNode } from 'react';
 import { ActingUserControl } from '../Components/ActingUserControl';
 import { ErrorText } from '../Components/ErrorText';
 import type { SharedProps } from '../types';
 
+function pathname(url: string): string {
+    const withoutQuery = url.split('?')[0] ?? url;
+    if (withoutQuery.startsWith('http://') || withoutQuery.startsWith('https://')) {
+        try {
+            return new URL(withoutQuery).pathname || '/';
+        } catch {
+            return withoutQuery;
+        }
+    }
+
+    return withoutQuery === '' ? '/' : withoutQuery;
+}
+
+function sectionActive(currentUrl: string, href: string, matchPrefix: boolean) {
+    const current = pathname(currentUrl);
+    const target = pathname(href);
+
+    return matchPrefix ? current === target || current.startsWith(`${target}/`) : current === target;
+}
+
 export default function AppLayout({ children }: { children: ReactNode }) {
     const page = usePage<SharedProps>();
     const { props } = page;
-
-    function navClass(href: string, matchPrefix: boolean) {
-        const current = page.url.split('?')[0] ?? page.url;
-        const active = matchPrefix ? current === href || current.startsWith(`${href}/`) : current === href;
-
-        return cn(buttonVariants({ variant: active ? 'secondary' : 'ghost', size: 'sm' }));
-    }
+    const sections = [
+        { href: props.kanbanUrl, label: 'Board', matchPrefix: false },
+        { href: props.contactsUrl, label: 'Contacts', matchPrefix: true },
+        { href: props.estimatesUrl, label: 'Estimates', matchPrefix: true },
+        { href: props.usersUrl, label: 'Users', matchPrefix: true },
+        { href: props.productsUrl, label: 'Products', matchPrefix: true },
+    ];
 
     return (
-        <div className="min-h-screen bg-background">
-            <header className="border-b bg-card" data-acting-user={props.actingUser?.name ?? ''}>
+        <div className="bg-background min-h-screen">
+            <header className="bg-card border-b" data-acting-user={props.actingUser?.name ?? ''}>
                 <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-3">
                     <div className="flex flex-wrap items-center gap-4">
                         <Link href={props.kanbanUrl} className="font-heading text-base font-medium">
                             Just Tell CRM
                         </Link>
                         <nav className="flex items-center gap-1">
-                            <Link href={props.kanbanUrl} className={navClass(props.kanbanUrl, false)}>
-                                Board
-                            </Link>
-                            <Link href={props.contactsUrl} className={navClass(props.contactsUrl, true)}>
-                                Contacts
-                            </Link>
-                            <Link href={props.estimatesUrl} className={navClass(props.estimatesUrl, true)}>
-                                Estimates
-                            </Link>
+                            {sections.map((section) => {
+                                const active = sectionActive(page.url, section.href, section.matchPrefix);
+
+                                return (
+                                    <Link
+                                        key={section.label}
+                                        href={section.href}
+                                        className={cn(buttonVariants({ variant: active ? 'default' : 'ghost', size: 'sm' }))}
+                                        aria-current={active ? 'page' : undefined}
+                                    >
+                                        {section.label}
+                                    </Link>
+                                );
+                            })}
                         </nav>
                     </div>
                     <ActingUserControl users={props.users} actingUser={props.actingUser} selectUrl={props.selectActingUserUrl} />

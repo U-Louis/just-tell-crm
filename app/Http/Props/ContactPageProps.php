@@ -30,6 +30,9 @@ final class ContactPageProps
             'urls' => [
                 'qualify' => route('contacts.qualify', $contact->id),
                 'estimate' => route('contacts.estimates.store', $contact->id),
+                'update' => route('contacts.update', $contact->id),
+                'destroy' => route('contacts.destroy', $contact->id),
+                'pdf' => route('contacts.pdf', $contact->id),
             ],
         ];
     }

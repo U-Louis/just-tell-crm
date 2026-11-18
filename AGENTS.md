@@ -30,4 +30,5 @@ The app image needs PHP `mbstring`, `dom`, `pdo_pgsql`, and `pdo_sqlite`.
 - The Policy is the allow decision. Form Requests call it.
 - React mutations use Inertia `useForm` and URLs the server put in props. Pages do not call `fetch` or axios for product data.
 - The acting user is the session dropdown. There is no login screen.
+- A product text or number input is checked on the page when the form is submitted, and a failing check shows a message on that field and does not post.
 - The verifier sets `passes`. The implementer leaves it false.

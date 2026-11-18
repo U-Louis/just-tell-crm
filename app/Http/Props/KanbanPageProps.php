@@ -2,6 +2,7 @@
 
 namespace App\Http\Props;
 
+use App\Domain\Crm\Column;
 use App\Domain\Crm\Contact;
 
 final class KanbanPageProps
@@ -13,9 +14,9 @@ final class KanbanPageProps
     public static function make(array $contacts): array
     {
         $columns = [
-            ['name' => 'new', 'contacts' => []],
-            ['name' => 'qualified', 'contacts' => []],
-            ['name' => 'estimate sent', 'contacts' => []],
+            ['name' => Column::NEW, 'contacts' => []],
+            ['name' => Column::QUALIFIED, 'contacts' => []],
+            ['name' => Column::ESTIMATE_SENT, 'contacts' => []],
         ];
 
         foreach ($contacts as $contact) {
@@ -24,10 +25,13 @@ final class KanbanPageProps
                     continue;
                 }
 
+                $target = self::target($contact->column);
                 $columns[$index]['contacts'][] = [
                     'id' => $contact->id,
                     'name' => $contact->name,
                     'showUrl' => route('contacts.show', $contact->id),
+                    'nextColumn' => $target === null ? null : $target['column'],
+                    'moveUrl' => $target === null ? null : route('contacts.show', $contact->id).'#'.$target['anchor'],
                 ];
             }
         }
@@ -38,5 +42,19 @@ final class KanbanPageProps
                 'store' => route('contacts.store'),
             ],
         ];
+    }
+
+    /**
+     * The next column, and the contact-page anchor for the fields that move a card there.
+     *
+     * @return array{column: string, anchor: string}|null
+     */
+    private static function target(string $column): ?array
+    {
+        return match ($column) {
+            Column::NEW => ['column' => Column::QUALIFIED, 'anchor' => 'qualify'],
+            Column::QUALIFIED => ['column' => Column::ESTIMATE_SENT, 'anchor' => 'estimate'],
+            default => null,
+        };
     }
 }

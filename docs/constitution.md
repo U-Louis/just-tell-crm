@@ -21,7 +21,7 @@ Just Tell CRM is a forms CRM. A person picks an acting user, creates a contact, 
 | SLO `threshold` | unset |
 | SLO `measurement point` | unset |
 | SLO `window` | unset |
-| `page-size` | unset |
+| `page-size` | 15 |
 | `payload-max` | unset |
 | `timeout-seconds` | unset |
 | `rate-limit` | unset |
@@ -51,4 +51,4 @@ Protection levels are unnamed. The table of stored fields is in `docs/intent-que
 
 ## Non-goals
 
-Speech, passwords, login, Fortify, a fancy email view, decorative effects, payments, attachments, teams, API tokens, a second mail channel, PDF, CSV, counts, and uc32.
+Speech, passwords, login, Fortify, a fancy email view, decorative effects, payments, attachments, teams, API tokens, a second mail channel, and uc32.

@@ -271,4 +271,50 @@ class ScenarioOneTest extends TestCase
             'column' => 'estimate sent',
         ]);
     }
+
+    public function test_kanban_move_url_points_at_the_next_columns_edit_anchor(): void
+    {
+        $ada = User::factory()->create(['name' => 'Ada']);
+        $cable = ProductRecord::query()->create(['name' => 'Cable', 'unit_price' => 10]);
+        $lamp = ProductRecord::query()->create(['name' => 'Lamp', 'unit_price' => 5]);
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->post(route('contacts.store'), ['name' => 'Northwind']);
+        $contactId = (int) ContactRecord::query()->where('name', 'Northwind')->value('id');
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->get(route('home'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('Kanban')
+                ->where('columns.0.contacts.0.nextColumn', 'qualified')
+                ->where('columns.0.contacts.0.moveUrl', route('contacts.show', $contactId).'#qualify'));
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->post(route('contacts.qualify', $contactId), [
+                'email' => 'northwind@example.com',
+                'company' => 'Northwind',
+            ]);
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->get(route('home'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('columns.1.contacts.0.nextColumn', 'estimate sent')
+                ->where('columns.1.contacts.0.moveUrl', route('contacts.show', $contactId).'#estimate'));
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->post(route('contacts.estimates.store', $contactId), [
+                'lines' => [
+                    ['product_id' => $cable->id, 'quantity' => 2],
+                    ['product_id' => $lamp->id, 'quantity' => 1],
+                ],
+            ]);
+
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->get(route('home'))
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('columns.2.contacts.0.nextColumn', null)
+                ->where('columns.2.contacts.0.moveUrl', null));
+    }
 }

@@ -53,6 +53,8 @@ class HandleInertiaRequests extends Middleware
             'kanbanUrl' => route('home'),
             'contactsUrl' => route('contacts.index'),
             'estimatesUrl' => route('estimates.index'),
+            'usersUrl' => route('users.index'),
+            'productsUrl' => route('products.index'),
             'selectActingUserUrl' => route('acting-user.store'),
         ]);
     }

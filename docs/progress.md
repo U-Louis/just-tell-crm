@@ -49,3 +49,13 @@ failed: none
 dead end: The first in-container test run had `DB_CONNECTION=pgsql` in the process environment. Laravel reads `$_SERVER` before PHPUnit's sqlite value, so RefreshDatabase wiped the Postgres rows. Compose now sets only `DB_HOST=postgres`, and `tests/bootstrap.php` copies the PHPUnit database values onto `$_SERVER`. `artisan serve` needs `--no-reload`, or it drops `DB_HOST` and the app dials 127.0.0.1. Docker Hub still has no username, so the image is built from the local PHP 8.4 image and Node 22 is downloaded from nodejs.org.
 artifacts: `Dockerfile`, `.dockerignore`, `docker-compose.yml`, `init.sh`, `vite.config.js`, `phpunit.xml`, `tests/bootstrap.php`, `.env.example`, `AGENTS.md`, `docs/exec-plans/decisions.md`, `docs/product-specs/M1.md`
 next: every `passes` value in `docs/features.json` stays false. Boot with `./init.sh`. The origin is `http://127.0.0.1:8000`.
+
+## 2026-11-18 draft use cases uc4–uc31
+
+commit: the commit that adds this entry
+contract: POC
+passed: Four domain controllers cover user, contact, product, and estimate create, read, update, delete, CSV, PDF, and counts. Page size is 15. `docker compose exec app php artisan test` passed, 28 tests, 628 assertions. `docker compose exec app vendor/bin/pint --test` passed. In the browser, Ada was selected. An empty name showed `contact.name.required`. Northwind was created, qualified with northwind@example.com and company Northwind, then sent with Cable quantity 2 and Lamp quantity 1. The column became `estimate sent`, the page showed `This is a test.`, and the saved grand total was 25. A user named Dana was created and the user count became 4. A product named Ribbon was created. Searching the contact list for test2 showed that row and left the count at 9. Northwind's name was updated to Northwind Updated, the column stayed `estimate sent`, and the page still showed `This is a test.` The contact CSV was `text/csv` with header `name,column` and no email. The contact PDF was `application/pdf`. Ben's board, contact list, and estimate list did not show Ada's contact. Opening `/contacts/14` as Ben showed 404.
+failed: none
+dead end: none
+artifacts: `docs/product-specs/use-cases.md`, `docs/features.json`, `docs/constitution.md`, `docs/exec-plans/decisions.md`, `docs/progress.md`
+next: The next step is a fixture factory. This slice does not build it.
