@@ -41,9 +41,7 @@ export default function DeleteUser() {
                 </div>
 
                 <Dialog>
-                    <DialogTrigger asChild>
-                        <Button variant="destructive">Delete account</Button>
-                    </DialogTrigger>
+                    <DialogTrigger render={<Button variant="destructive" />}>Delete account</DialogTrigger>
                     <DialogContent>
                         <DialogTitle>Are you sure you want to delete your account?</DialogTitle>
                         <DialogDescription>
@@ -71,14 +69,10 @@ export default function DeleteUser() {
                             </div>
 
                             <DialogFooter>
-                                <DialogClose asChild>
-                                    <Button variant="secondary" onClick={closeModal}>
-                                        Cancel
-                                    </Button>
-                                </DialogClose>
+                                <DialogClose render={<Button variant="secondary" onClick={closeModal} />}>Cancel</DialogClose>
 
-                                <Button variant="destructive" disabled={processing} asChild>
-                                    <button type="submit">Delete account</button>
+                                <Button variant="destructive" disabled={processing} type="submit">
+                                    Delete account
                                 </Button>
                             </DialogFooter>
                         </form>

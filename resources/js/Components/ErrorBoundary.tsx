@@ -1,4 +1,5 @@
 import { Component, type ReactNode } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 
 type Properties = {
     children: ReactNode;
@@ -18,9 +19,9 @@ export class ErrorBoundary extends Component<Properties, State> {
     render(): ReactNode {
         if (this.state.failed) {
             return (
-                <p role="alert" data-error-code="error.unexpected">
-                    Something unexpected went wrong.
-                </p>
+                <Alert variant="destructive" data-error-code="error.unexpected">
+                    <AlertDescription>Something unexpected went wrong.</AlertDescription>
+                </Alert>
             );
         }
 

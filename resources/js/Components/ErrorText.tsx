@@ -1,3 +1,4 @@
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import type { SharedError } from '../types';
 
 export function ErrorText({ error }: { error: SharedError | null }) {
@@ -6,8 +7,8 @@ export function ErrorText({ error }: { error: SharedError | null }) {
     }
 
     return (
-        <p role="alert" data-error-code={error.code}>
-            {error.message ?? 'Something unexpected went wrong.'}
-        </p>
+        <Alert variant="destructive" data-error-code={error.code}>
+            <AlertDescription>{error.message ?? 'Something unexpected went wrong.'}</AlertDescription>
+        </Alert>
     );
 }

@@ -1,5 +1,12 @@
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Field, FieldDescription, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 import type { ContactPageProps } from '../../types';
 
 export default function Show({ contact, products, urls }: ContactPageProps) {
@@ -42,47 +49,84 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
     return (
         <>
             <Head title={contact.name} />
-            <h1>{contact.name}</h1>
-            <p>Email {contact.email ?? ''}</p>
-            <p>Company {contact.company ?? ''}</p>
-            <p data-column={contact.column}>{contact.column}</p>
-            {contact.sentEmailBody && <p data-sent-body={contact.sentEmailBody}>{contact.sentEmailBody}</p>}
-            {contact.grandTotal !== null && <p data-saved-grand-total={contact.grandTotal}>Saved grand total {contact.grandTotal}</p>}
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-xl">{contact.name}</CardTitle>
+                    <CardDescription>Email {contact.email ?? ''}</CardDescription>
+                </CardHeader>
+                <CardContent className="flex flex-col gap-3">
+                    <p>Company {contact.company ?? ''}</p>
+                    <Badge variant="outline" data-column={contact.column}>
+                        {contact.column}
+                    </Badge>
+                    {contact.sentEmailBody && (
+                        <Alert>
+                            <AlertDescription data-sent-body={contact.sentEmailBody}>{contact.sentEmailBody}</AlertDescription>
+                        </Alert>
+                    )}
+                    {contact.grandTotal !== null && <p data-saved-grand-total={contact.grandTotal}>Saved grand total {contact.grandTotal}</p>}
+                </CardContent>
+            </Card>
 
-            <form noValidate onSubmit={submitQualify} className="mt-4 grid gap-2">
-                <div>
-                    <label htmlFor="email">Email</label>
-                    <input id="email" type="email" value={qualify.data.email} onChange={(event) => qualify.setData('email', event.target.value)} />
-                </div>
-                <div>
-                    <label htmlFor="company">Company</label>
-                    <input id="company" value={qualify.data.company} onChange={(event) => qualify.setData('company', event.target.value)} />
-                </div>
-                <button type="submit">Validate</button>
+            <form noValidate onSubmit={submitQualify} className="mt-4">
+                <Card size="sm">
+                    <CardHeader>
+                        <CardTitle>Qualify</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <FieldGroup className="gap-4">
+                            <Field className="gap-1.5">
+                                <FieldLabel htmlFor="email">Email</FieldLabel>
+                                <Input
+                                    id="email"
+                                    type="email"
+                                    value={qualify.data.email}
+                                    onChange={(event) => qualify.setData('email', event.target.value)}
+                                />
+                            </Field>
+                            <Field className="gap-1.5">
+                                <FieldLabel htmlFor="company">Company</FieldLabel>
+                                <Input id="company" value={qualify.data.company} onChange={(event) => qualify.setData('company', event.target.value)} />
+                            </Field>
+                            <Button type="submit">Validate</Button>
+                        </FieldGroup>
+                    </CardContent>
+                </Card>
             </form>
 
-            <form noValidate onSubmit={submitEstimate} className="mt-4 grid gap-2">
-                {products.map((product, index) => (
-                    <div key={product.id}>
-                        <label htmlFor={`qty-${product.id}`}>{product.name} quantity</label>
-                        <span> unit price {product.unitPrice}</span>
-                        <input
-                            id={`qty-${product.id}`}
-                            type="number"
-                            min="0"
-                            step="1"
-                            value={estimate.data.lines[index]?.quantity ?? ''}
-                            onChange={(event) => {
-                                const lines = estimate.data.lines.map((line, lineIndex) =>
-                                    lineIndex === index ? { ...line, quantity: event.target.value } : line,
-                                );
-                                estimate.setData('lines', lines);
-                            }}
-                        />
-                    </div>
-                ))}
-                <p data-grand-total={preview}>Grand total {preview}</p>
-                <button type="submit">Validate estimate</button>
+            <Separator className="my-4" />
+
+            <form noValidate onSubmit={submitEstimate}>
+                <Card size="sm">
+                    <CardHeader>
+                        <CardTitle>Estimate</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <FieldGroup className="gap-4">
+                            {products.map((product, index) => (
+                                <Field key={product.id} className="gap-1.5">
+                                    <FieldLabel htmlFor={`qty-${product.id}`}>{product.name} quantity</FieldLabel>
+                                    <FieldDescription>unit price {product.unitPrice}</FieldDescription>
+                                    <Input
+                                        id={`qty-${product.id}`}
+                                        type="number"
+                                        min="0"
+                                        step="1"
+                                        value={estimate.data.lines[index]?.quantity ?? ''}
+                                        onChange={(event) => {
+                                            const lines = estimate.data.lines.map((line, lineIndex) =>
+                                                lineIndex === index ? { ...line, quantity: event.target.value } : line,
+                                            );
+                                            estimate.setData('lines', lines);
+                                        }}
+                                    />
+                                </Field>
+                            ))}
+                            <p data-grand-total={preview}>Grand total {preview}</p>
+                            <Button type="submit">Validate estimate</Button>
+                        </FieldGroup>
+                    </CardContent>
+                </Card>
             </form>
         </>
     );

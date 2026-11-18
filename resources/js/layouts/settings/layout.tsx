@@ -38,14 +38,12 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
                                 key={item.url}
                                 size="sm"
                                 variant="ghost"
-                                asChild
                                 className={cn('w-full justify-start', {
                                     'bg-muted': currentPath === item.url,
                                 })}
+                                render={<Link href={item.url} prefetch />}
                             >
-                                <Link href={item.url} prefetch>
-                                    {item.title}
-                                </Link>
+                                {item.title}
                             </Button>
                         ))}
                     </nav>

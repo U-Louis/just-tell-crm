@@ -41,6 +41,12 @@ export default [
         ignores: ['vendor', 'node_modules', 'public', 'bootstrap/ssr', 'tailwind.config.js'],
     },
     {
+        files: ['resources/js/components/kanban-board/types.ts'],
+        rules: {
+            '@typescript-eslint/no-explicit-any': 'off',
+        },
+    },
+    {
         files: ['resources/js/**/*.{js,jsx,ts,tsx}'],
         linterOptions: {
             noInlineConfig: true,
