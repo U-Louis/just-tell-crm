@@ -1,0 +1,11 @@
+# docker-compose.gpu.yml
+services:
+  whisper:
+    build:
+      context: ./whisper
+      dockerfile: Dockerfile.cuda
+    image: just-tell-whisper:cuda
+    environment:
+      WHISPER_DEVICE: cuda
+      WHISPER_COMPUTE_TYPE: float16
+    gpus: all

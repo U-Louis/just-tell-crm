@@ -1,3 +1,4 @@
+# docker-compose.yml
 services:
   postgres:
     image: postgres:18
@@ -10,6 +11,8 @@ services:
       - "5432:5432"
     volumes:
       - ./.pgdata:/var/lib/postgresql
+    networks:
+      - backend
 
   app:
     build:
@@ -29,15 +32,41 @@ services:
       # Laravel reads $_SERVER first, and RefreshDatabase then wipes Postgres.
       DB_HOST: postgres
       APP_URL: http://127.0.0.1:8000
+      WHISPER_URL: http://whisper:8080
+      WHISPER_TOKEN: ${WHISPER_TOKEN}
     depends_on:
       postgres:
         condition: service_started
-    # The base image checks FrankenPHP's admin port. This process is artisan serve.
+      whisper:
+        condition: service_healthy
+    networks:
+      - backend
+      - speech
     healthcheck:
       disable: true
-    # --no-reload keeps Compose env (DB_HOST=postgres). Without it, artisan serve
-    # drops those variables and the process reads DB_HOST=127.0.0.1 from .env.
     command: ["php", "artisan", "serve", "--no-reload", "--host=0.0.0.0", "--port=8000"]
+
+  queue:
+    image: just-tell-crm:dev
+    pull_policy: never
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    environment:
+      DB_HOST: postgres
+      WHISPER_URL: http://whisper:8080
+      WHISPER_TOKEN: ${WHISPER_TOKEN}
+    depends_on:
+      postgres:
+        condition: service_started
+      whisper:
+        condition: service_healthy
+    networks:
+      - backend
+      - speech
+    healthcheck:
+      disable: true
+    command: ["php", "artisan", "queue:work", "--sleep=3", "--timeout=180", "--tries=3"]
 
   vite:
     image: just-tell-crm:dev
@@ -51,6 +80,39 @@ services:
       APP_URL: http://127.0.0.1:8000
     depends_on:
       - app
+    networks:
+      - backend
     healthcheck:
       disable: true
     command: ["npm", "run", "dev", "--", "--host", "0.0.0.0", "--port", "5173"]
+
+  whisper:
+    build:
+      context: ./whisper
+      dockerfile: Dockerfile
+    image: just-tell-whisper:cpu
+    environment:
+      WHISPER_DEVICE: cpu
+      WHISPER_COMPUTE_TYPE: int8
+      WHISPER_BEAM_SIZE: "1"
+      WHISPER_KEYS: ${WHISPER_KEYS}
+      OMP_NUM_THREADS: "4"
+    networks:
+      - speech
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8080/healthz')",
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 36
+      start_period: 60s
+
+networks:
+  backend:
+  speech:
+    internal: true

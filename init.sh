@@ -22,12 +22,22 @@ else
 fi
 export PHP_IMAGE
 
-docker compose -f docker-compose.yml build
-docker compose -f docker-compose.yml up -d postgres
+# CPU stack is docker-compose.yml. ./init.sh gpu adds docker-compose.gpu.yml.
+compose_args=(-f docker-compose.yml)
+if [[ "${1:-}" == "gpu" ]]; then
+  compose_args+=(-f docker-compose.gpu.yml)
+fi
+
+compose() {
+  docker compose "${compose_args[@]}" "$@"
+}
+
+compose build
+compose up -d postgres
 
 ready=0
 for _ in $(seq 1 30); do
-  if docker compose -f docker-compose.yml exec -T postgres pg_isready -U just_tell -d just_tell_crm >/dev/null 2>&1; then
+  if compose exec -T postgres pg_isready -U just_tell -d just_tell_crm >/dev/null 2>&1; then
     ready=1
     break
   fi
@@ -39,14 +49,14 @@ if [[ "$ready" -ne 1 ]]; then
 fi
 
 if ! grep -q '^APP_KEY=base64:' .env; then
-  key="$(docker compose -f docker-compose.yml run --rm --no-deps --entrypoint php app -r 'echo "base64:".base64_encode(random_bytes(32));')"
+  key="$(compose run --rm --no-deps --entrypoint php app -r 'echo "base64:".base64_encode(random_bytes(32));')"
   sed -i "s|^APP_KEY=.*|APP_KEY=${key}|" .env
 fi
 
-docker compose -f docker-compose.yml run --rm --no-deps app composer install --no-interaction --prefer-dist
-docker compose -f docker-compose.yml run --rm --no-deps app npm ci
-docker compose -f docker-compose.yml run --rm app php artisan migrate --force
-docker compose -f docker-compose.yml run --rm app php artisan db:seed --force
-docker compose -f docker-compose.yml up -d app vite
+compose run --rm --no-deps app composer install --no-interaction --prefer-dist
+compose run --rm --no-deps app npm ci
+compose run --rm app php artisan migrate --force
+compose run --rm app php artisan db:seed --force
+compose up -d app vite queue
 
 printf 'origin http://127.0.0.1:8000\n'
