@@ -145,12 +145,12 @@
     "id": "F12",
     "module": "M1",
     "category": "functional",
-    "description": "Deleting a user who owns no contact removes that user and clears the acting user when it was that user.",
+    "description": "Deleting a user who owns no contact removes that user and clears the acting user when it was that user. The next page uses the first remaining user.",
     "steps": [
       "Create a user named Dana who owns no contact.",
       "Choose Dana as the acting user.",
       "Delete Dana.",
-      "See that Dana is gone and the acting user is cleared."
+      "See that Dana is gone and the acting user is the first remaining user."
     ],
     "passes": false
   },

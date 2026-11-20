@@ -165,6 +165,28 @@ class ScenarioOneTest extends TestCase
         $this->assertDatabaseCount('sent_emails', 0);
     }
 
+    public function test_missing_acting_user_defaults_to_the_first_user_by_name(): void
+    {
+        $ben = User::factory()->create(['name' => 'Ben']);
+        $ada = User::factory()->create(['name' => 'Ada']);
+
+        $this->get(route('home'))
+            ->assertOk()
+            ->assertSessionHas('acting_user_id', $ada->id)
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('actingUser.id', $ada->id)
+                ->where('actingUser.name', 'Ada')
+                ->where('users.0.name', 'Ada'));
+
+        $this->withSession(['acting_user_id' => $ben->id])
+            ->get(route('home'))
+            ->assertSessionHas('acting_user_id', $ben->id);
+
+        $this->withSession(['acting_user_id' => 9999])
+            ->get(route('home'))
+            ->assertSessionHas('acting_user_id', $ada->id);
+    }
+
     public function test_state_change_without_an_acting_user_is_refused(): void
     {
         $response = $this->from(route('home'))

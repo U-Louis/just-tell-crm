@@ -19,4 +19,23 @@ final class ActingUser
 
         return $this->crm->findUser((int) $id);
     }
+
+    public function ensure(Request $request): ?User
+    {
+        $user = $this->resolve($request);
+        if ($user !== null) {
+            return $user;
+        }
+
+        $first = $this->crm->listUsers()[0] ?? null;
+        if ($first === null) {
+            $request->session()->forget('acting_user_id');
+
+            return null;
+        }
+
+        $request->session()->put('acting_user_id', $first->id);
+
+        return $first;
+    }
 }

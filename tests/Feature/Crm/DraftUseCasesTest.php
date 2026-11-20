@@ -52,6 +52,9 @@ class DraftUseCasesTest extends TestCase
             ->assertRedirect(route('users.index'))
             ->assertSessionMissing('acting_user_id');
         $this->assertDatabaseMissing('users', ['id' => $dana->id]);
+        $this->get(route('users.index'))
+            ->assertOk()
+            ->assertSessionHas('acting_user_id', $ada->id);
 
         $this->actingAsUser($ada)
             ->put(route('users.update', $ada), ['name' => 'Ada Lovelace'])
@@ -90,17 +93,20 @@ class DraftUseCasesTest extends TestCase
         $this->flushSession()
             ->get(route('users.index'))
             ->assertOk()
+            ->assertSessionHas('acting_user_id', $ada->id)
             ->assertInertia(fn (Assert $page) => $page
-                ->where('users', [])
-                ->where('count', 0));
+                ->where('count', 16)
+                ->has('users', 15)
+                ->where('users.0.name', 'Ada')
+                ->where('actingUser.name', 'Ada'));
 
-        $this->flushSession()->get(route('users.show', $ada))->assertNotFound();
+        $this->flushSession()->get(route('users.show', $ada))->assertOk();
 
         $this->flushSession()
-            ->from(route('home'))
             ->post(route('users.store'), ['name' => 'Cam'])
-            ->assertSessionHas('error.code', 'user.required')
-            ->assertSessionHas('error.feature_id', 'F7');
+            ->assertRedirect(route('users.index'))
+            ->assertSessionHas('acting_user_id', $ada->id);
+        $this->assertDatabaseHas('users', ['name' => 'Cam']);
     }
 
     public function test_contact_update_keeps_the_column_and_delete_removes_owned_rows(): void
@@ -219,7 +225,11 @@ class DraftUseCasesTest extends TestCase
         $this->flushSession()
             ->get(route('products.index'))
             ->assertOk()
-            ->assertInertia(fn (Assert $page) => $page->where('products', [])->where('count', 0));
+            ->assertSessionHas('acting_user_id', $ada->id)
+            ->assertInertia(fn (Assert $page) => $page
+                ->where('count', 2)
+                ->has('products', 2)
+                ->where('actingUser.name', 'Ada'));
     }
 
     public function test_estimate_update_recomputes_the_total_and_delete_leaves_the_column(): void
@@ -335,7 +345,10 @@ class DraftUseCasesTest extends TestCase
         }
 
         $this->actingAsUser($ada)->get(route('contacts.show', 9999))->assertNotFound();
-        $this->flushSession()->get(route('contacts.pdf', $contactId))->assertNotFound();
+        $this->flushSession()
+            ->get(route('contacts.pdf', $contactId))
+            ->assertOk()
+            ->assertSessionHas('acting_user_id', $ada->id);
     }
 
     /**

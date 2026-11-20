@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Domain\Crm\CrmRepository;
 use App\Domain\Crm\User;
+use App\Http\ActingUser;
 use App\Http\Errors\ErrorMessages;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
@@ -23,17 +24,11 @@ class HandleInertiaRequests extends Middleware
     public function share(Request $request): array
     {
         $crm = app(CrmRepository::class);
-        $acting = null;
-        $id = $request->session()->get('acting_user_id');
-        if (is_int($id) || (is_string($id) && ctype_digit($id))) {
-            $user = $crm->findUser((int) $id);
-            if ($user !== null) {
-                $acting = [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                ];
-            }
-        }
+        $user = app(ActingUser::class)->ensure($request);
+        $acting = $user === null ? null : [
+            'id' => $user->id,
+            'name' => $user->name,
+        ];
 
         $error = $request->session()->get('error');
         if (! is_array($error) || ! is_string($error['code'] ?? null)) {

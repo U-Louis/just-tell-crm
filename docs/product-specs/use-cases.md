@@ -16,7 +16,7 @@ uc8 is the existing contact create, also shown as a create form on the contact l
 - CSV downloads the rows matching `q`, or the whole scoped set when `q` is empty. It is not limited to the current page. Columns match the list. Contact CSV is name and column. Email stays off the contact list and off the contact CSV.
 - Each detail page shows the fields, an update form, delete, and a PDF link. The PDF is a real PDF. The contact page still qualifies a contact and validates an estimate.
 - Any acting user may create, update, and delete users and products. A contact and its estimates stay with the user who created the contact.
-- With no acting user, every list is empty and a write is refused with `user.required`.
+- When the session has no acting user, the acting user is the first user in the list, ordered by name. When the user list is empty, every list is empty and a write is refused with `user.required`.
 - Deleting a user who still owns a contact is refused with `user.delete.blocked`. Deleting a user who owns none removes that user and clears `acting_user_id` when it was that user.
 - Deleting a contact removes that contact, its estimates, its estimate lines, and its sent emails. Another user's contact is 404.
 - Deleting a product that is on an estimate line is refused with `product.delete.blocked`. A price change does not rewrite stored line prices or past grand totals.
@@ -94,7 +94,7 @@ Forbidden: a product route in `routes/api.php`, Fortify or other login screens, 
 - Given 16 users, when the user list is opened, then the page shows 15 rows, the count is 16, and the CSV contains every user. A search downloads only the matching names. The count stays 16.
 - Given a contact with an email, when the contact CSV is downloaded, then the header is name and column and the email is absent.
 - Given a user, contact, product, or estimate detail, when the PDF link is opened, then the response is `application/pdf`.
-- Given no acting user, when a list is opened, then it is empty. When a write is submitted, then the code is `user.required`.
+- Given Ben was created before Ada and the session has no acting user, when a page is opened, then the acting user is Ada, the first user by name. Given no users, when a list is opened, then it is empty, and when a write is submitted, then the code is `user.required`.
 - Given Ada created Northwind, when Ben is the acting user, then Ben does not see Northwind on the kanban, the contact list, or the estimate list.
 
 ## Test seams
