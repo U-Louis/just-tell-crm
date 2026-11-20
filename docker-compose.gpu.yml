@@ -2,7 +2,7 @@
 services:
   whisper:
     build:
-      context: ./whisper
+      context: ../fast-whisper-api
       dockerfile: Dockerfile.cuda
     image: just-tell-whisper:cuda
     environment:
