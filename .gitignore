@@ -12,7 +12,6 @@
 /.zed
 /bootstrap/ssr
 /node_modules
-/.pgdata
 /public/build
 /public/hot
 /public/storage

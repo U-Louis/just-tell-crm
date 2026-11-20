@@ -10,7 +10,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - ./.pgdata:/var/lib/postgresql
+      - pgdata:/var/lib/postgresql
     networks:
       - backend
 
@@ -116,3 +116,6 @@ networks:
   backend:
   speech:
     internal: true
+
+volumes:
+  pgdata:
