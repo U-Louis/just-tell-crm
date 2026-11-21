@@ -7,11 +7,11 @@ use Illuminate\Support\Facades\Log;
 
 final class CrmLog
 {
-    public static function write(Request $request, ?string $featureId, string $outcome, ?string $code): void
+    public static function write(Request $request, ?string $featureId, string $outcome, ?string $code, ?int $actorId = null): void
     {
-        $actorId = null;
-        if ($request->hasSession()) {
-            $actorId = $request->session()->get('acting_user_id');
+        if ($actorId === null && $request->hasSession()) {
+            $sessionActor = $request->session()->get('acting_user_id');
+            $actorId = is_numeric($sessionActor) ? (int) $sessionActor : null;
         }
 
         Log::info('crm.action', [

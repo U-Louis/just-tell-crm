@@ -23,6 +23,15 @@ export type SharedProps = {
     usersUrl: string;
     productsUrl: string;
     selectActingUserUrl: string;
+    voiceStoreUrl: string;
+    voice: VoiceRunState | null;
+};
+
+export type VoiceRunState = {
+    id: number;
+    status: 'queued' | 'running' | 'finished' | 'failed';
+    transcript: string;
+    result: string | null;
 };
 
 export type ContactListItem = {

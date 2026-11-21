@@ -5,7 +5,16 @@ use App\Http\Controllers\Crm\EstimateController;
 use App\Http\Controllers\Crm\KanbanController;
 use App\Http\Controllers\Crm\ProductController;
 use App\Http\Controllers\Crm\UserController;
+use App\Http\Controllers\Crm\VoiceController;
+use App\Http\Controllers\Crm\VoiceToolController;
+use App\Http\Middleware\VoiceToken;
 use Illuminate\Support\Facades\Route;
+
+Route::post('/voice', [VoiceController::class, 'store'])->name('voice.store');
+Route::middleware(VoiceToken::class)->group(function () {
+    Route::get('/voice/catalog', [VoiceToolController::class, 'catalog'])->name('voice.catalog');
+    Route::post('/voice/tools/{tool}', [VoiceToolController::class, 'call'])->name('voice.tools');
+});
 
 Route::get('/', [KanbanController::class, 'index'])->name('home');
 Route::post('/acting-user', [UserController::class, 'select'])->name('acting-user.store');

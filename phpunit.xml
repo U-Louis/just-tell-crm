@@ -33,5 +33,11 @@
         <env name="QUEUE_CONNECTION" value="sync" force="true"/>
         <env name="SESSION_DRIVER" value="array" force="true"/>
         <env name="TELESCOPE_ENABLED" value="false" force="true"/>
+        <env name="VOICE_TOKEN" value="test-voice-token" force="true"/>
+        <env name="WHISPER_URL" value="http://whisper.test" force="true"/>
+        <env name="WHISPER_TOKEN" value="test-whisper" force="true"/>
+        <env name="VOICE_APP_URL" value="http://app.test" force="true"/>
+        <env name="CURSOR_API_KEY" value="test-cursor" force="true"/>
+        <env name="CURSOR_MODEL" value="composer-2.5" force="true"/>
     </php>
 </phpunit>

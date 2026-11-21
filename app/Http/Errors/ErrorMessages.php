@@ -19,5 +19,14 @@ final class ErrorMessages
         'product.unit_price.invalid' => 'A unit price is a whole number, zero or greater.',
         'product.delete.blocked' => 'That product is on an estimate.',
         'estimate.lines.required' => 'Add a product quantity.',
+        'voice.clip.required' => 'Hold the button while you speak.',
+        'voice.transcribe.failed' => 'The recording could not be transcribed.',
+        'voice.transcript.empty' => 'No words were heard.',
+        'voice.fields.required' => 'That field is required.',
+        'voice.token.required' => 'The voice token is missing.',
+        'voice.run.required' => 'The voice run is missing.',
+        'voice.run.missing' => 'The voice run is missing.',
+        'voice.tool.unknown' => 'That action is not available.',
+        'voice.not_found' => 'That record is missing.',
     ];
 }

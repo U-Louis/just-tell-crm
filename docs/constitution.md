@@ -1,6 +1,6 @@
 # Constitution
 
-Just Tell CRM is a forms CRM. A person picks an acting user, creates a contact, qualifies it, and sends the test email. Speech is v2.
+Just Tell CRM is a forms CRM. A person picks an acting user, creates a contact, qualifies it, and sends the test email. Speech is the hold-to-talk overlay: Whisper transcribes the clip, and a Cursor agent whose only tools are the CRM MCP does the instruction.
 
 ## Fields
 
@@ -51,4 +51,4 @@ Protection levels are unnamed. The table of stored fields is in `docs/intent-que
 
 ## Non-goals
 
-Speech, passwords, login, Fortify, a fancy email view, decorative effects, payments, attachments, teams, API tokens, a second mail channel, and uc32.
+Passwords, login, Fortify, a fancy email view, decorative effects, payments, attachments, teams, API tokens, a second mail channel, and uc32.

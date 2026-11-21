@@ -5,6 +5,7 @@ import { Link, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
 import { ActingUserControl } from '../Components/ActingUserControl';
 import { ErrorText } from '../Components/ErrorText';
+import { PushToTalk } from '../Components/PushToTalk';
 import type { SharedProps } from '../types';
 
 function pathname(url: string): string {
@@ -75,6 +76,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
                 <ErrorText error={props.error} />
                 <main>{children}</main>
             </div>
+            <PushToTalk />
         </div>
     );
 }

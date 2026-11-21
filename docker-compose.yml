@@ -34,6 +34,10 @@ services:
       APP_URL: http://127.0.0.1:8000
       WHISPER_URL: http://whisper:8080
       WHISPER_TOKEN: ${WHISPER_TOKEN}
+      CURSOR_API_KEY: ${CURSOR_API_KEY:-}
+      CURSOR_MODEL: ${CURSOR_MODEL:-composer-2.5}
+      VOICE_TOKEN: ${VOICE_TOKEN:-}
+      VOICE_APP_URL: http://app:8000
     depends_on:
       postgres:
         condition: service_started
@@ -56,6 +60,10 @@ services:
       DB_HOST: postgres
       WHISPER_URL: http://whisper:8080
       WHISPER_TOKEN: ${WHISPER_TOKEN}
+      CURSOR_API_KEY: ${CURSOR_API_KEY:-}
+      CURSOR_MODEL: ${CURSOR_MODEL:-composer-2.5}
+      VOICE_TOKEN: ${VOICE_TOKEN:-}
+      VOICE_APP_URL: http://app:8000
     depends_on:
       postgres:
         condition: service_started

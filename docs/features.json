@@ -481,5 +481,18 @@
       "See that the product is gone."
     ],
     "passes": false
+  },
+  {
+    "id": "F38",
+    "module": "M1",
+    "category": "functional",
+    "description": "Holding the talk button and saying to create a contact named Northwind adds that contact for the acting user.",
+    "steps": [
+      "Choose Ada as the acting user.",
+      "Hold the talk button and say to create a contact named Northwind.",
+      "See the transcript.",
+      "See Northwind in the kanban column new."
+    ],
+    "passes": false
   }
 ]
