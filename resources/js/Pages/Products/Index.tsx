@@ -51,7 +51,7 @@ export default function Index({ products, count, page, pageCount, query, previou
             <Head title="Products" />
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <h1 className="text-2xl font-medium">Products</h1>
-                <a href={csvUrl} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+                <a href={csvUrl} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
                     CSV
                 </a>
             </div>

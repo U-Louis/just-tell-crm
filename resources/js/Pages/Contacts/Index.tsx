@@ -24,11 +24,11 @@ export default function Index({ contacts, count, page, pageCount, query, previou
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <h1 className="text-2xl font-medium">Contacts</h1>
-                    <Link href={createUrl} aria-label="Create contact" className={buttonVariants({ variant: 'outline', size: 'icon-sm' })}>
+                    <Link href={createUrl} aria-label="Create contact" className={buttonVariants({ variant: 'secondary', size: 'icon', className: 'text-base font-bold' })}>
                         +
                     </Link>
                 </div>
-                <a href={csvUrl} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+                <a href={csvUrl} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
                     CSV
                 </a>
             </div>
