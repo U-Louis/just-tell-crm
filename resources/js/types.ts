@@ -101,9 +101,7 @@ export type KanbanColumn = {
 
 export type KanbanProps = {
     columns: KanbanColumn[];
-    urls: {
-        store: string;
-    };
+    createUrl: string;
 };
 
 export type ProductOption = {

@@ -5,8 +5,7 @@ test('create, qualify, and send an estimate for Northwind', async ({ page }) => 
     await chooseActingUser(page, 'Ada');
     await expect(page.locator('[data-acting-user="Ada"]')).toBeVisible();
 
-    await page.getByLabel('Name').fill('Northwind');
-    await page.getByRole('button', { name: 'Create contact' }).click();
+    await createContact(page, 'Northwind');
     await expect(page.locator('[data-column="new"]')).toContainText('Northwind');
 
     await page.locator('[data-column="new"]').getByRole('link', { name: 'Northwind' }).last().click();
@@ -46,8 +45,7 @@ test('dragging a card opens the next column edit and skips no column', async ({ 
     await expect(page.locator('[data-acting-user="Ada"]')).toBeVisible();
 
     const name = `Harbor ${Date.now()}`;
-    await page.getByLabel('Name').fill(name);
-    await page.getByRole('button', { name: 'Create contact' }).click();
+    await createContact(page, name);
     await expect(page.locator('[data-column="new"]').getByRole('link', { name, exact: true })).toBeVisible();
 
     await dragCard(page, 'new', name, 'estimate sent');
@@ -73,6 +71,12 @@ test('dragging a card opens the next column edit and skips no column', async ({ 
     await expect(page).toHaveURL(/\/contacts\/\d+#estimate$/);
     await expect(page.locator('#estimate')).toBeInViewport();
 });
+
+async function createContact(page: Page, name: string) {
+    await page.getByRole('link', { name: 'New contact' }).click();
+    await page.getByLabel('Name').fill(name);
+    await page.getByRole('button', { name: 'Create contact' }).click();
+}
 
 async function chooseActingUser(page: Page, name: string) {
     await page.getByRole('button', { name: 'Acting user' }).click();

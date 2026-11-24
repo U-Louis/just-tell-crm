@@ -1,12 +1,6 @@
 import { KanbanBoard, type KanbanCardRenderer, type KanbanData, type KanbanItem } from '@/components/kanban-board';
-import { Button } from '@/components/ui/button';
-import { Field, FieldError, FieldLabel } from '@/components/ui/field';
-import { Input } from '@/components/ui/input';
-import { submissionFailed } from '@/lib/clearOnSuccess';
-import { inputError } from '@/lib/inputCheck';
-import { Head, Link, router, useForm } from '@inertiajs/react';
-import type { FormEvent } from 'react';
-import { useState } from 'react';
+import { buttonVariants } from '@/components/ui/button';
+import { Head, Link, router } from '@inertiajs/react';
 import type { KanbanColumn, KanbanProps } from '../types';
 
 type ContactCard = {
@@ -66,46 +60,15 @@ function openMove(moveUrl: string) {
     });
 }
 
-export default function Kanban({ columns, urls }: KanbanProps) {
-    const form = useForm({ name: '' });
-    const [nameError, setNameError] = useState<string | null>(null);
+export default function Kanban({ columns, createUrl }: KanbanProps) {
     const data = boardData(columns);
-
-    function submit(event: FormEvent) {
-        event.preventDefault();
-        const error = inputError('text', form.data.name);
-        setNameError(error);
-        if (error) {
-            return;
-        }
-
-        form.post(urls.store, {
-            onSuccess: (page) => {
-                if (submissionFailed(page)) {
-                    return;
-                }
-
-                form.setData({ name: '' });
-            },
-        });
-    }
 
     return (
         <>
             <Head title="Board" />
-            <form noValidate onSubmit={submit} className="mb-4 flex items-end gap-2">
-                <Field className="max-w-sm gap-1.5" data-invalid={nameError ? true : undefined}>
-                    <FieldLabel htmlFor="contact-name">Name</FieldLabel>
-                    <Input
-                        id="contact-name"
-                        value={form.data.name}
-                        aria-invalid={nameError ? true : undefined}
-                        onChange={(event) => form.setData('name', event.target.value)}
-                    />
-                    {nameError && <FieldError>{nameError}</FieldError>}
-                </Field>
-                <Button type="submit">Create contact</Button>
-            </form>
+            <Link href={createUrl} className={buttonVariants({ className: 'mb-4 w-fit' })}>
+                New contact
+            </Link>
             <div className="h-[32rem]">
                 <KanbanBoard
                     aria-label="Board"

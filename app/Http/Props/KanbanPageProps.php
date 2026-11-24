@@ -38,9 +38,7 @@ final class KanbanPageProps
 
         return [
             'columns' => $columns,
-            'urls' => [
-                'store' => route('contacts.store'),
-            ],
+            'createUrl' => route('contacts.create'),
         ];
     }
 
