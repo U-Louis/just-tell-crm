@@ -23,8 +23,8 @@ export default function Index({ users, count, page, pageCount, query, previousUr
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <h1 className="text-2xl font-medium">Users</h1>
-                    <Link href={createUrl} aria-label="Create user" className={buttonVariants({ variant: 'secondary', size: 'icon', className: 'text-base font-bold' })}>
-                        +
+                    <Link href={createUrl} aria-label="Create user" className={buttonVariants({ variant: 'secondary', size: 'icon', className: 'text-base' })}>
+                        <span className="font-bold">+</span>
                     </Link>
                 </div>
                 <a href={csvUrl} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
