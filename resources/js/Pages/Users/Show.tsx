@@ -1,6 +1,5 @@
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
@@ -33,7 +32,7 @@ export default function Show({ user, urls }: UserPageProps) {
         });
     }
 
-    function submitDelete(event: FormEvent) {
+    function submitDelete(event: { preventDefault(): void }) {
         event.preventDefault();
         remove.delete(urls.destroy);
     }
@@ -41,43 +40,28 @@ export default function Show({ user, urls }: UserPageProps) {
     return (
         <>
             <Head title={user.name} />
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-xl">{user.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                    <p>Name {user.name}</p>
-                    <a href={urls.pdf} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-                        PDF
-                    </a>
-                </CardContent>
-            </Card>
-            <form noValidate onSubmit={submitUpdate} className="mt-4">
-                <Card size="sm">
-                    <CardHeader>
-                        <CardTitle>Update</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <FieldGroup className="gap-4">
-                            <Field className="gap-1.5" data-invalid={nameError ? true : undefined}>
-                                <FieldLabel htmlFor="user-name">Name</FieldLabel>
-                                <Input
-                                    id="user-name"
-                                    value={update.data.name}
-                                    aria-invalid={nameError ? true : undefined}
-                                    onChange={(event) => update.setData('name', event.target.value)}
-                                />
-                                {nameError && <FieldError>{nameError}</FieldError>}
-                            </Field>
-                            <Button type="submit">Update</Button>
-                        </FieldGroup>
-                    </CardContent>
-                </Card>
-            </form>
-            <form onSubmit={submitDelete} className="mt-4">
-                <Button type="submit" variant="destructive">
-                    Delete
-                </Button>
+            <form noValidate onSubmit={submitUpdate} className="flex max-w-xl flex-col gap-4">
+                <h1 className="text-2xl font-medium">{user.name}</h1>
+                <p>Name {user.name}</p>
+                <a href={urls.pdf} className={buttonVariants({ variant: 'outline', size: 'sm', className: 'self-start' })}>
+                    PDF
+                </a>
+                <Field className="gap-1.5" data-invalid={nameError ? true : undefined}>
+                    <FieldLabel htmlFor="user-name">Name</FieldLabel>
+                    <Input
+                        id="user-name"
+                        value={update.data.name}
+                        aria-invalid={nameError ? true : undefined}
+                        onChange={(event) => update.setData('name', event.target.value)}
+                    />
+                    {nameError && <FieldError>{nameError}</FieldError>}
+                </Field>
+                <div className="flex flex-wrap gap-2">
+                    <Button type="submit">Update</Button>
+                    <Button type="button" variant="destructive" onClick={submitDelete}>
+                        Delete
+                    </Button>
+                </div>
             </form>
         </>
     );

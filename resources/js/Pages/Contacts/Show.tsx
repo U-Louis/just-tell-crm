@@ -1,10 +1,8 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
+import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { Separator } from '@/components/ui/separator';
 import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, useForm } from '@inertiajs/react';
@@ -64,12 +62,12 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
         });
     }
 
-    function submitDelete(event: FormEvent) {
+    function submitDelete(event: { preventDefault(): void }) {
         event.preventDefault();
         remove.delete(urls.destroy);
     }
 
-    function submitQualify(event: FormEvent) {
+    function submitQualify(event: { preventDefault(): void }) {
         event.preventDefault();
         const errors = {
             email: inputError('email', qualify.data.email),
@@ -91,7 +89,7 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
         });
     }
 
-    function submitEstimate(event: FormEvent) {
+    function submitEstimate(event: { preventDefault(): void }) {
         event.preventDefault();
         const errors = estimate.data.lines.map((line) => inputError('number', line.quantity));
         setQuantityErrors(errors);
@@ -141,151 +139,116 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
     return (
         <>
             <Head title={contact.name} />
-            <Card>
-                <CardHeader>
-                    <CardTitle className="text-xl">{contact.name}</CardTitle>
-                    <CardDescription>Email {contact.email ?? ''}</CardDescription>
-                </CardHeader>
-                <CardContent className="flex flex-col gap-3">
-                    <p>Company {contact.company ?? ''}</p>
-                    <Badge variant="outline" data-column={contact.column}>
-                        {contact.column}
-                    </Badge>
-                    {contact.sentEmailBody && (
-                        <Alert>
-                            <AlertDescription data-sent-body={contact.sentEmailBody}>{contact.sentEmailBody}</AlertDescription>
-                        </Alert>
-                    )}
-                    {contact.grandTotal !== null && <p data-saved-grand-total={contact.grandTotal}>Saved grand total {contact.grandTotal}</p>}
-                    <a href={urls.pdf} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-                        PDF
-                    </a>
-                </CardContent>
-            </Card>
+            <form noValidate onSubmit={submitUpdate} className="flex max-w-xl flex-col gap-4">
+                <h1 className="text-2xl font-medium">{contact.name}</h1>
+                <p>Email {contact.email ?? ''}</p>
+                <p>Company {contact.company ?? ''}</p>
+                <Badge variant="outline" data-column={contact.column}>
+                    {contact.column}
+                </Badge>
+                {contact.sentEmailBody && (
+                    <Alert>
+                        <AlertDescription data-sent-body={contact.sentEmailBody}>{contact.sentEmailBody}</AlertDescription>
+                    </Alert>
+                )}
+                {contact.grandTotal !== null && <p data-saved-grand-total={contact.grandTotal}>Saved grand total {contact.grandTotal}</p>}
+                <a href={urls.pdf} className={buttonVariants({ variant: 'outline', size: 'sm', className: 'self-start' })}>
+                    PDF
+                </a>
+                <Field className="gap-1.5" data-invalid={updateErrors.name ? true : undefined}>
+                    <FieldLabel htmlFor="update-name">Name</FieldLabel>
+                    <Input
+                        id="update-name"
+                        value={update.data.name}
+                        aria-invalid={updateErrors.name ? true : undefined}
+                        onChange={(event) => update.setData('name', event.target.value)}
+                    />
+                    {updateErrors.name && <FieldError>{updateErrors.name}</FieldError>}
+                </Field>
+                <Field className="gap-1.5" data-invalid={updateErrors.email ? true : undefined}>
+                    <FieldLabel htmlFor="update-email">Email address</FieldLabel>
+                    <Input
+                        id="update-email"
+                        type="email"
+                        value={update.data.email}
+                        aria-invalid={updateErrors.email ? true : undefined}
+                        onChange={(event) => update.setData('email', event.target.value)}
+                    />
+                    {updateErrors.email && <FieldError>{updateErrors.email}</FieldError>}
+                </Field>
+                <Field className="gap-1.5" data-invalid={updateErrors.company ? true : undefined}>
+                    <FieldLabel htmlFor="update-company">Company name</FieldLabel>
+                    <Input
+                        id="update-company"
+                        value={update.data.company}
+                        aria-invalid={updateErrors.company ? true : undefined}
+                        onChange={(event) => update.setData('company', event.target.value)}
+                    />
+                    {updateErrors.company && <FieldError>{updateErrors.company}</FieldError>}
+                </Field>
+                <div className="flex flex-wrap gap-2">
+                    <Button type="submit">Update</Button>
+                    <Button type="button" variant="destructive" onClick={submitDelete}>
+                        Delete
+                    </Button>
+                </div>
+                <div id="qualify" className="flex scroll-mt-4 flex-col gap-4">
+                    <Field className="gap-1.5" data-invalid={qualifyErrors.email ? true : undefined}>
+                        <FieldLabel htmlFor="email">Email</FieldLabel>
+                        <Input
+                            id="email"
+                            type="email"
+                            value={qualify.data.email}
+                            aria-invalid={qualifyErrors.email ? true : undefined}
+                            onChange={(event) => qualify.setData('email', event.target.value)}
+                        />
+                        {qualifyErrors.email && <FieldError>{qualifyErrors.email}</FieldError>}
+                    </Field>
+                    <Field className="gap-1.5" data-invalid={qualifyErrors.company ? true : undefined}>
+                        <FieldLabel htmlFor="company">Company</FieldLabel>
+                        <Input
+                            id="company"
+                            value={qualify.data.company}
+                            aria-invalid={qualifyErrors.company ? true : undefined}
+                            onChange={(event) => qualify.setData('company', event.target.value)}
+                        />
+                        {qualifyErrors.company && <FieldError>{qualifyErrors.company}</FieldError>}
+                    </Field>
+                    <Button type="button" onClick={submitQualify}>
+                        Validate
+                    </Button>
+                </div>
+                <div id="estimate" className="flex scroll-mt-4 flex-col gap-4">
+                    {products.map((product, index) => {
+                        const quantityError = quantityErrors[index] ?? null;
 
-            <form noValidate onSubmit={submitUpdate} className="mt-4">
-                <Card size="sm">
-                    <CardHeader>
-                        <CardTitle>Update</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <FieldGroup className="gap-4">
-                            <Field className="gap-1.5" data-invalid={updateErrors.name ? true : undefined}>
-                                <FieldLabel htmlFor="update-name">Name</FieldLabel>
+                        return (
+                            <Field key={product.id} className="gap-1.5" data-invalid={quantityError ? true : undefined}>
+                                <FieldLabel htmlFor={`qty-${product.id}`}>{product.name} quantity</FieldLabel>
+                                <FieldDescription>unit price {product.unitPrice}</FieldDescription>
                                 <Input
-                                    id="update-name"
-                                    value={update.data.name}
-                                    aria-invalid={updateErrors.name ? true : undefined}
-                                    onChange={(event) => update.setData('name', event.target.value)}
+                                    id={`qty-${product.id}`}
+                                    type="number"
+                                    min="0"
+                                    step="1"
+                                    value={estimate.data.lines[index]?.quantity ?? ''}
+                                    aria-invalid={quantityError ? true : undefined}
+                                    onChange={(event) => {
+                                        const lines = estimate.data.lines.map((line, lineIndex) =>
+                                            lineIndex === index ? { ...line, quantity: event.target.value } : line,
+                                        );
+                                        estimate.setData('lines', lines);
+                                    }}
                                 />
-                                {updateErrors.name && <FieldError>{updateErrors.name}</FieldError>}
+                                {quantityError && <FieldError>{quantityError}</FieldError>}
                             </Field>
-                            <Field className="gap-1.5" data-invalid={updateErrors.email ? true : undefined}>
-                                <FieldLabel htmlFor="update-email">Email address</FieldLabel>
-                                <Input
-                                    id="update-email"
-                                    type="email"
-                                    value={update.data.email}
-                                    aria-invalid={updateErrors.email ? true : undefined}
-                                    onChange={(event) => update.setData('email', event.target.value)}
-                                />
-                                {updateErrors.email && <FieldError>{updateErrors.email}</FieldError>}
-                            </Field>
-                            <Field className="gap-1.5" data-invalid={updateErrors.company ? true : undefined}>
-                                <FieldLabel htmlFor="update-company">Company name</FieldLabel>
-                                <Input
-                                    id="update-company"
-                                    value={update.data.company}
-                                    aria-invalid={updateErrors.company ? true : undefined}
-                                    onChange={(event) => update.setData('company', event.target.value)}
-                                />
-                                {updateErrors.company && <FieldError>{updateErrors.company}</FieldError>}
-                            </Field>
-                            <Button type="submit">Update</Button>
-                        </FieldGroup>
-                    </CardContent>
-                </Card>
-            </form>
-
-            <form onSubmit={submitDelete} className="mt-4">
-                <Button type="submit" variant="destructive">
-                    Delete
-                </Button>
-            </form>
-
-            <form id="qualify" noValidate onSubmit={submitQualify} className="mt-4 scroll-mt-4">
-                <Card size="sm">
-                    <CardHeader>
-                        <CardTitle>Qualify</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <FieldGroup className="gap-4">
-                            <Field className="gap-1.5" data-invalid={qualifyErrors.email ? true : undefined}>
-                                <FieldLabel htmlFor="email">Email</FieldLabel>
-                                <Input
-                                    id="email"
-                                    type="email"
-                                    value={qualify.data.email}
-                                    aria-invalid={qualifyErrors.email ? true : undefined}
-                                    onChange={(event) => qualify.setData('email', event.target.value)}
-                                />
-                                {qualifyErrors.email && <FieldError>{qualifyErrors.email}</FieldError>}
-                            </Field>
-                            <Field className="gap-1.5" data-invalid={qualifyErrors.company ? true : undefined}>
-                                <FieldLabel htmlFor="company">Company</FieldLabel>
-                                <Input
-                                    id="company"
-                                    value={qualify.data.company}
-                                    aria-invalid={qualifyErrors.company ? true : undefined}
-                                    onChange={(event) => qualify.setData('company', event.target.value)}
-                                />
-                                {qualifyErrors.company && <FieldError>{qualifyErrors.company}</FieldError>}
-                            </Field>
-                            <Button type="submit">Validate</Button>
-                        </FieldGroup>
-                    </CardContent>
-                </Card>
-            </form>
-
-            <Separator className="my-4" />
-
-            <form id="estimate" noValidate onSubmit={submitEstimate} className="scroll-mt-4">
-                <Card size="sm">
-                    <CardHeader>
-                        <CardTitle>Estimate</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <FieldGroup className="gap-4">
-                            {products.map((product, index) => {
-                                const quantityError = quantityErrors[index] ?? null;
-
-                                return (
-                                    <Field key={product.id} className="gap-1.5" data-invalid={quantityError ? true : undefined}>
-                                        <FieldLabel htmlFor={`qty-${product.id}`}>{product.name} quantity</FieldLabel>
-                                        <FieldDescription>unit price {product.unitPrice}</FieldDescription>
-                                        <Input
-                                            id={`qty-${product.id}`}
-                                            type="number"
-                                            min="0"
-                                            step="1"
-                                            value={estimate.data.lines[index]?.quantity ?? ''}
-                                            aria-invalid={quantityError ? true : undefined}
-                                            onChange={(event) => {
-                                                const lines = estimate.data.lines.map((line, lineIndex) =>
-                                                    lineIndex === index ? { ...line, quantity: event.target.value } : line,
-                                                );
-                                                estimate.setData('lines', lines);
-                                            }}
-                                        />
-                                        {quantityError && <FieldError>{quantityError}</FieldError>}
-                                    </Field>
-                                );
-                            })}
-                            <p data-grand-total={preview}>Grand total {preview}</p>
-                            <Button type="submit">Validate estimate</Button>
-                        </FieldGroup>
-                    </CardContent>
-                </Card>
+                        );
+                    })}
+                    <p data-grand-total={preview}>Grand total {preview}</p>
+                    <Button type="button" onClick={submitEstimate}>
+                        Validate estimate
+                    </Button>
+                </div>
             </form>
         </>
     );
