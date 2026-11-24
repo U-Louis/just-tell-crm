@@ -7,9 +7,10 @@ import { inputError } from '@/lib/inputCheck';
 import { Head, Link, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
+import { ListPagination } from '../../Components/ListPagination';
 import type { ProductListProps } from '../../types';
 
-export default function Index({ products, count, query, previousUrl, nextUrl, csvUrl, urls }: ProductListProps) {
+export default function Index({ products, count, page, pageCount, query, previousUrl, nextUrl, csvUrl, urls }: ProductListProps) {
     const create = useForm({ name: '', unit_price: '' });
     const search = useForm({ q: query });
     const [errors, setErrors] = useState({ name: null as string | null, unitPrice: null as string | null });
@@ -54,9 +55,6 @@ export default function Index({ products, count, query, previousUrl, nextUrl, cs
                     CSV
                 </a>
             </div>
-            <p className="mt-2" data-count={count}>
-                Count {count}
-            </p>
             <form noValidate onSubmit={submitSearch} className="mt-4 flex items-end gap-2">
                 <Field className="max-w-sm gap-1.5">
                     <FieldLabel htmlFor="product-search">Search</FieldLabel>
@@ -111,18 +109,7 @@ export default function Index({ products, count, query, previousUrl, nextUrl, cs
                     </li>
                 ))}
             </ul>
-            <div className="mt-4 flex gap-2">
-                {previousUrl && (
-                    <Link href={previousUrl} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-                        Previous
-                    </Link>
-                )}
-                {nextUrl && (
-                    <Link href={nextUrl} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-                        Next
-                    </Link>
-                )}
-            </div>
+            <ListPagination count={count} page={page} pageCount={pageCount} previousUrl={previousUrl} nextUrl={nextUrl} />
         </>
     );
 }

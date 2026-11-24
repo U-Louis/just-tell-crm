@@ -24,6 +24,8 @@ final class ContactListPageProps
                 ];
             }, $contacts),
             'count' => $count,
+            'page' => $page,
+            'pageCount' => ListQuery::pageCount($count),
             'query' => $term,
             'previousUrl' => ListQuery::previousUrl('contacts.index', $page, $term),
             'nextUrl' => ListQuery::nextUrl('contacts.index', $page, $term, $hasMore),

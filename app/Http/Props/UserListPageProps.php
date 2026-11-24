@@ -21,6 +21,8 @@ final class UserListPageProps
                 'destroyUrl' => route('users.destroy', $user->id),
             ], $users),
             'count' => $count,
+            'page' => $page,
+            'pageCount' => ListQuery::pageCount($count),
             'query' => $term,
             'previousUrl' => ListQuery::previousUrl('users.index', $page, $term),
             'nextUrl' => ListQuery::nextUrl('users.index', $page, $term, $hasMore),

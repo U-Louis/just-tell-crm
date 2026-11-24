@@ -35,6 +35,15 @@ final class ListQuery
         return ($page - 1) * self::SIZE;
     }
 
+    public static function pageCount(int $count): int
+    {
+        if ($count < 1) {
+            return 1;
+        }
+
+        return (int) ceil($count / self::SIZE);
+    }
+
     /**
      * @return array<string, int|string>
      */

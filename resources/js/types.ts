@@ -45,6 +45,8 @@ export type ContactListItem = {
 export type ContactListProps = {
     contacts: ContactListItem[];
     count: number;
+    page: number;
+    pageCount: number;
     query: string;
     previousUrl: string | null;
     nextUrl: string | null;
@@ -72,6 +74,8 @@ export type EstimateListItem = {
 export type EstimateListProps = {
     estimates: EstimateListItem[];
     count: number;
+    page: number;
+    pageCount: number;
     query: string;
     previousUrl: string | null;
     nextUrl: string | null;
@@ -150,6 +154,8 @@ export type UserListItem = {
 export type UserListProps = {
     users: UserListItem[];
     count: number;
+    page: number;
+    pageCount: number;
     query: string;
     previousUrl: string | null;
     nextUrl: string | null;
@@ -188,6 +194,8 @@ export type ProductListItem = {
 export type ProductListProps = {
     products: ProductListItem[];
     count: number;
+    page: number;
+    pageCount: number;
     query: string;
     previousUrl: string | null;
     nextUrl: string | null;

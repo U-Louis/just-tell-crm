@@ -22,6 +22,8 @@ final class EstimateListPageProps
                 'destroyUrl' => route('estimates.destroy', $estimate->id),
             ], $estimates),
             'count' => $count,
+            'page' => $page,
+            'pageCount' => ListQuery::pageCount($count),
             'query' => $term,
             'previousUrl' => ListQuery::previousUrl('estimates.index', $page, $term),
             'nextUrl' => ListQuery::nextUrl('estimates.index', $page, $term, $hasMore),

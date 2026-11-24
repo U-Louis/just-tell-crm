@@ -6,9 +6,10 @@ import { Head, Link, router, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { ConfirmDeleteDialog } from '../../Components/ConfirmDeleteDialog';
+import { ListPagination } from '../../Components/ListPagination';
 import type { ContactListProps } from '../../types';
 
-export default function Index({ contacts, count, query, previousUrl, nextUrl, csvUrl, createUrl, urls }: ContactListProps) {
+export default function Index({ contacts, count, page, pageCount, query, previousUrl, nextUrl, csvUrl, createUrl, urls }: ContactListProps) {
     const search = useForm({ q: query });
     const [destroyUrl, setDestroyUrl] = useState<string | null>(null);
 
@@ -31,9 +32,6 @@ export default function Index({ contacts, count, query, previousUrl, nextUrl, cs
                     CSV
                 </a>
             </div>
-            <p className="mt-2" data-count={count}>
-                Count {count}
-            </p>
             <form noValidate onSubmit={submitSearch} className="mt-4 flex items-end gap-2">
                 <Field className="max-w-sm gap-1.5">
                     <FieldLabel htmlFor="contact-search">Search</FieldLabel>
@@ -89,18 +87,7 @@ export default function Index({ contacts, count, query, previousUrl, nextUrl, cs
                     </tbody>
                 </table>
             </div>
-            <div className="mt-4 flex gap-2">
-                {previousUrl && (
-                    <Link href={previousUrl} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-                        Previous
-                    </Link>
-                )}
-                {nextUrl && (
-                    <Link href={nextUrl} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
-                        Next
-                    </Link>
-                )}
-            </div>
+            <ListPagination count={count} page={page} pageCount={pageCount} previousUrl={previousUrl} nextUrl={nextUrl} />
             <ConfirmDeleteDialog
                 open={destroyUrl !== null}
                 destroyUrl={destroyUrl}

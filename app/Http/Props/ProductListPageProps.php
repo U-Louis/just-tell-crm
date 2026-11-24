@@ -21,6 +21,8 @@ final class ProductListPageProps
                 'showUrl' => route('products.show', $product->id),
             ], $products),
             'count' => $count,
+            'page' => $page,
+            'pageCount' => ListQuery::pageCount($count),
             'query' => $term,
             'previousUrl' => ListQuery::previousUrl('products.index', $page, $term),
             'nextUrl' => ListQuery::nextUrl('products.index', $page, $term, $hasMore),
