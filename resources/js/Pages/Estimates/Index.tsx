@@ -1,6 +1,6 @@
 import { Button, buttonVariants } from '@/components/ui/button';
-import { Field, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { Search } from 'lucide-react';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
@@ -31,13 +31,16 @@ export default function Index({ estimates, count, page, pageCount, query, previo
                     CSV
                 </a>
             </div>
-            <form noValidate onSubmit={submitSearch} className="mt-4 flex items-end gap-2">
-                <Field className="max-w-sm gap-1.5">
-                    <FieldLabel htmlFor="estimate-search">Search</FieldLabel>
-                    <Input id="estimate-search" name="q" value={search.data.q} onChange={(event) => search.setData('q', event.target.value)} />
-                </Field>
-                <Button type="submit" variant="outline">
-                    Search
+            <form noValidate onSubmit={submitSearch} className="mt-4 flex max-w-sm items-center gap-2">
+                <Input
+                    id="estimate-search"
+                    name="q"
+                    aria-label="Search"
+                    value={search.data.q}
+                    onChange={(event) => search.setData('q', event.target.value)}
+                />
+                <Button type="submit" variant="outline" size="icon" aria-label="Search">
+                    <Search />
                 </Button>
             </form>
             <div className="mt-4 overflow-hidden rounded-xl border">
