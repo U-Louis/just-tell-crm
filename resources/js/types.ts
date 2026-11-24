@@ -200,8 +200,14 @@ export type ProductListProps = {
     previousUrl: string | null;
     nextUrl: string | null;
     csvUrl: string;
+    createUrl: string;
     urls: {
         index: string;
+    };
+};
+
+export type ProductCreateProps = {
+    urls: {
         store: string;
     };
 };

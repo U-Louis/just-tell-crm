@@ -41,6 +41,7 @@ Route::post('/contacts/{contact}/estimates', [EstimateController::class, 'store'
 
 Route::get('/products/export.csv', [ProductController::class, 'csv'])->name('products.csv');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
 Route::post('/products', [ProductController::class, 'store'])->name('products.store');
 Route::get('/products/{product}.pdf', [ProductController::class, 'pdf'])->whereNumber('product')->name('products.pdf');
 Route::get('/products/{product}', [ProductController::class, 'show'])->whereNumber('product')->name('products.show');

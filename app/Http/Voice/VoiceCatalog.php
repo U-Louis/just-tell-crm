@@ -16,6 +16,7 @@ final class VoiceCatalog
         'contacts.create',
         'contacts.csv',
         'contacts.pdf',
+        'products.create',
         'products.csv',
         'products.pdf',
         'estimates.create',

@@ -14,6 +14,7 @@ use App\Http\CrmLog;
 use App\Http\Export\CsvResponse;
 use App\Http\Export\PdfResponse;
 use App\Http\ListQuery;
+use App\Http\Props\ProductCreatePageProps;
 use App\Http\Props\ProductListPageProps;
 use App\Http\Props\ProductPageProps;
 use App\Http\Requests\CreateProductRequest;
@@ -33,6 +34,11 @@ final class ProductController
         [$products, $count, $page, $term, $hasMore] = $this->page($request, $crm, $acting);
 
         return Inertia::render('Products/Index', ProductListPageProps::make($products, $count, $page, $term, $hasMore));
+    }
+
+    public function create(): Response
+    {
+        return Inertia::render('Products/Create', ProductCreatePageProps::make());
     }
 
     public function store(CreateProductRequest $request, CreateProduct $action): RedirectResponse
