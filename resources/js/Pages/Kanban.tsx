@@ -16,6 +16,8 @@ type ContactCard = {
     moveUrl: string | null;
 };
 
+const columnBands = ['amber', 'emerald', 'sky'] as const;
+
 const contactRenderer: KanbanCardRenderer<ContactCard> = {
     id: 'contact',
     label: 'Contact',
@@ -28,9 +30,10 @@ const contactRenderer: KanbanCardRenderer<ContactCard> = {
 
 function boardData(columns: KanbanColumn[]): KanbanData {
     return {
-        columns: columns.map((column) => ({
+        columns: columns.map((column, index) => ({
             id: column.name,
             title: column.name,
+            color: columnBands[Math.min(index, columnBands.length - 1)],
             allowReorder: false,
             items: column.contacts.map((contact) => ({
                 id: String(contact.id),

@@ -1,7 +1,7 @@
 "use client";
 
-import { ChevronsLeft, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,6 @@ export function ColumnHeader({
   itemCount,
   dragHandleProps,
   onColorChange,
-  onCollapse,
   onEdit,
   onDelete,
 }: {
@@ -30,7 +29,6 @@ export function ColumnHeader({
   itemCount: number;
   dragHandleProps?: Record<string, unknown>;
   onColorChange: (color: string | undefined) => void;
-  onCollapse: () => void;
   onEdit?: (column: KanbanColumn) => void;
   onDelete?: (columnId: string) => void;
 }) {
@@ -64,18 +62,6 @@ export function ColumnHeader({
             onChange={onColorChange}
           />
         ) : null}
-        <Button
-          type="button"
-          variant="ghost"
-          size="icon"
-          className="size-6"
-          onClick={onCollapse}
-          aria-label={`Collapse column ${column.title}`}
-          data-stop-click
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <ChevronsLeft className="size-3.5" />
-        </Button>
         {showMenu ? (
           <DropdownMenu>
             {/* F-cross-13 path-b: trigger IS the button (native <button> in

@@ -105,7 +105,6 @@ export function Column({
                 itemCount={column.items.length}
                 dragHandleProps={{ ...attributes, ...listeners }}
                 onColorChange={onSetColor}
-                onCollapse={onToggleCollapse}
                 onEdit={onColumnUpdate}
                 onDelete={onColumnDelete}
             />
