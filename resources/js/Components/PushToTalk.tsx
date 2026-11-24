@@ -1,9 +1,11 @@
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 import { router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import type { SharedProps } from '../types';
 
 const MIN_HOLD_MS = 300;
+const TALK_KEY = 'v';
 
 export function PushToTalk() {
     const page = usePage<SharedProps>();
@@ -17,7 +19,10 @@ export function PushToTalk() {
     const pressedAt = useRef(0);
     const startedAt = useRef(0);
     const pressed = useRef(false);
+    const keyboardHeld = useRef(false);
     const sawOpenRun = useRef(false);
+    const beginRef = useRef<(event?: PointerEvent<HTMLButtonElement>) => void>(() => {});
+    const endRef = useRef<() => void>(() => {});
     const busy = form.processing || voice?.status === 'queued' || voice?.status === 'running';
 
     useEffect(() => {
@@ -45,12 +50,12 @@ export function PushToTalk() {
         stream.current = null;
     }
 
-    async function begin(event: PointerEvent<HTMLButtonElement>) {
-        if (!actingUser || busy) {
+    async function begin(event?: PointerEvent<HTMLButtonElement>) {
+        if (!actingUser || busy || pressed.current) {
             return;
         }
 
-        event.currentTarget.setPointerCapture(event.pointerId);
+        event?.currentTarget.setPointerCapture(event.pointerId);
         pressed.current = true;
         pressedAt.current = Date.now();
         setLocalMessage(null);
@@ -112,6 +117,52 @@ export function PushToTalk() {
         mediaRecorder.stop();
     }
 
+    beginRef.current = begin;
+    endRef.current = end;
+
+    useEffect(() => {
+        function typing(target: EventTarget | null): boolean {
+            if (!(target instanceof HTMLElement)) {
+                return false;
+            }
+
+            const tag = target.tagName;
+
+            return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target.isContentEditable;
+        }
+
+        function onKeyDown(event: KeyboardEvent) {
+            if (event.repeat || event.altKey || event.ctrlKey || event.metaKey) {
+                return;
+            }
+            if (event.key.toLowerCase() !== TALK_KEY || typing(event.target) || pressed.current) {
+                return;
+            }
+
+            event.preventDefault();
+            keyboardHeld.current = true;
+            beginRef.current();
+        }
+
+        function onKeyUp(event: KeyboardEvent) {
+            if (event.key.toLowerCase() !== TALK_KEY || !keyboardHeld.current) {
+                return;
+            }
+
+            keyboardHeld.current = false;
+            event.preventDefault();
+            endRef.current();
+        }
+
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('keyup', onKeyUp);
+
+        return () => {
+            window.removeEventListener('keydown', onKeyDown);
+            window.removeEventListener('keyup', onKeyUp);
+        };
+    }, []);
+
     const statusLabel = voice?.status === 'queued' || voice?.status === 'running' ? 'Working on it.' : null;
 
     return (
@@ -131,15 +182,21 @@ export function PushToTalk() {
             <Button
                 type="button"
                 data-voice-button
+                data-voice-key={TALK_KEY}
                 data-voice-holding={holding ? 'true' : 'false'}
                 disabled={!actingUser || busy}
                 aria-pressed={holding}
+                aria-keyshortcuts={TALK_KEY}
+                className={cn(
+                    'size-24 rounded-full text-base font-semibold shadow-lg transition-transform',
+                    holding && 'scale-95 ring-4 ring-ring shadow-inner',
+                )}
                 onPointerDown={begin}
                 onPointerUp={end}
                 onPointerCancel={end}
                 onContextMenu={(event) => event.preventDefault()}
             >
-                {holding ? 'Release to send' : 'Hold to talk'}
+                Talk ({TALK_KEY})
             </Button>
         </div>
     );
