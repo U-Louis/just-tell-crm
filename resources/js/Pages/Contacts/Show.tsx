@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
+import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, useForm } from '@inertiajs/react';
 import { useLayoutEffect, useState, type FormEvent } from 'react';
@@ -52,7 +53,15 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
             return;
         }
 
-        update.put(urls.update);
+        update.put(urls.update, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                update.setData({ name: '', email: '', company: '' });
+            },
+        });
     }
 
     function submitDelete(event: FormEvent) {
@@ -71,7 +80,15 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
             return;
         }
 
-        qualify.post(urls.qualify);
+        qualify.post(urls.qualify, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                qualify.setData({ email: '', company: '' });
+            },
+        });
     }
 
     function submitEstimate(event: FormEvent) {
@@ -88,7 +105,17 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
                 quantity: Number.parseInt(line.quantity, 10),
             })),
         }));
-        estimate.post(urls.estimate);
+        estimate.post(urls.estimate, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                estimate.setData((data) => ({
+                    lines: data.lines.map((line) => ({ ...line, quantity: '' })),
+                }));
+            },
+        });
     }
 
     useLayoutEffect(() => {

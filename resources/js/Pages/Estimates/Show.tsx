@@ -2,6 +2,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
@@ -41,7 +42,17 @@ export default function Show({ estimate, urls }: EstimatePageProps) {
                 quantity: Number.parseInt(line.quantity, 10),
             })),
         }));
-        update.put(urls.update);
+        update.put(urls.update, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                update.setData((data) => ({
+                    lines: data.lines.map((line) => ({ ...line, quantity: '' })),
+                }));
+            },
+        });
     }
 
     function submitDelete(event: FormEvent) {

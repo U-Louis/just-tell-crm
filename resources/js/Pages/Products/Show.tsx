@@ -2,6 +2,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
@@ -31,7 +32,15 @@ export default function Show({ product, urls }: ProductPageProps) {
             name: data.name,
             unit_price: Number.parseInt(data.unit_price, 10),
         }));
-        update.put(urls.update);
+        update.put(urls.update, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                update.setData({ name: '', unit_price: '' });
+            },
+        });
     }
 
     function submitDelete(event: FormEvent) {

@@ -2,6 +2,7 @@ import { Button, buttonVariants } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, Link, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
@@ -28,7 +29,15 @@ export default function Index({ products, count, query, previousUrl, nextUrl, cs
             name: data.name,
             unit_price: Number.parseInt(data.unit_price, 10),
         }));
-        create.post(urls.store);
+        create.post(urls.store, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                create.setData({ name: '', unit_price: '' });
+            },
+        });
     }
 
     function submitSearch(event: FormEvent) {

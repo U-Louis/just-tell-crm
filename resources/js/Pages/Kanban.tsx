@@ -2,6 +2,7 @@ import { KanbanBoard, type KanbanCardRenderer, type KanbanData, type KanbanItem 
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, Link, router, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
@@ -75,7 +76,15 @@ export default function Kanban({ columns, urls }: KanbanProps) {
             return;
         }
 
-        form.post(urls.store);
+        form.post(urls.store, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                form.setData({ name: '' });
+            },
+        });
     }
 
     return (

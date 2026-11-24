@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
@@ -20,7 +21,15 @@ export default function Create({ urls }: UserCreateProps) {
             return;
         }
 
-        form.post(urls.store);
+        form.post(urls.store, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                form.setData({ name: '' });
+            },
+        });
     }
 
     return (

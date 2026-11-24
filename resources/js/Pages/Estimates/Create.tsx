@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
+import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
@@ -46,7 +47,17 @@ export default function Create({ contacts, products }: EstimateCreateProps) {
                 quantity: Number.parseInt(line.quantity, 10),
             })),
         }));
-        form.post(contact.storeUrl);
+        form.post(contact.storeUrl, {
+            onSuccess: (page) => {
+                if (submissionFailed(page)) {
+                    return;
+                }
+
+                form.setData((data) => ({
+                    lines: data.lines.map((line) => ({ ...line, quantity: '' })),
+                }));
+            },
+        });
     }
 
     return (
