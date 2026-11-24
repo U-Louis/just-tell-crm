@@ -59,7 +59,6 @@ export function PushToTalk() {
             const media = await navigator.mediaDevices.getUserMedia({ audio: true });
             if (!pressed.current) {
                 media.getTracks().forEach((track) => track.stop());
-                setLocalMessage('Hold the button while you speak.');
                 return;
             }
 
@@ -81,19 +80,17 @@ export function PushToTalk() {
             pressed.current = false;
             stopTracks();
             setHolding(false);
-            setLocalMessage(short ? 'Hold the button while you speak.' : 'The microphone is unavailable.');
+            if (!short) {
+                setLocalMessage('The microphone is unavailable.');
+            }
         }
     }
 
     function end() {
         const mediaRecorder = recorder.current;
-        const short = Date.now() - pressedAt.current < MIN_HOLD_MS;
         pressed.current = false;
         if (mediaRecorder === null || mediaRecorder.state === 'inactive') {
             setHolding(false);
-            if (mediaRecorder === null && short) {
-                setLocalMessage('Hold the button while you speak.');
-            }
             return;
         }
 
@@ -104,7 +101,6 @@ export function PushToTalk() {
             stopTracks();
             setHolding(false);
             if (heldFor < MIN_HOLD_MS || blob.size === 0) {
-                setLocalMessage('Hold the button while you speak.');
                 return;
             }
 

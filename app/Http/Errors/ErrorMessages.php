@@ -19,7 +19,6 @@ final class ErrorMessages
         'product.unit_price.invalid' => 'A unit price is a whole number, zero or greater.',
         'product.delete.blocked' => 'That product is on an estimate.',
         'estimate.lines.required' => 'Add a product quantity.',
-        'voice.clip.required' => 'Hold the button while you speak.',
         'voice.transcribe.failed' => 'The recording could not be transcribed.',
         'voice.transcript.empty' => 'No words were heard.',
         'voice.fields.required' => 'That field is required.',
