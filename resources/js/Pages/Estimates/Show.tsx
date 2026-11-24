@@ -1,7 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
 import { Head, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
@@ -41,17 +40,7 @@ export default function Show({ estimate, urls }: EstimatePageProps) {
                 quantity: Number.parseInt(line.quantity, 10),
             })),
         }));
-        update.put(urls.update, {
-            onSuccess: (page) => {
-                if (submissionFailed(page)) {
-                    return;
-                }
-
-                update.setData((data) => ({
-                    lines: data.lines.map((line) => ({ ...line, quantity: '' })),
-                }));
-            },
-        });
+        update.put(urls.update);
     }
 
     function submitDelete(event: { preventDefault(): void }) {

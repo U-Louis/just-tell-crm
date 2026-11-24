@@ -51,15 +51,7 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
             return;
         }
 
-        update.put(urls.update, {
-            onSuccess: (page) => {
-                if (submissionFailed(page)) {
-                    return;
-                }
-
-                update.setData({ name: '', email: '', company: '' });
-            },
-        });
+        update.put(urls.update);
     }
 
     function submitDelete(event: { preventDefault(): void }) {
