@@ -1,11 +1,34 @@
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
+import { MicButton } from '@/components/ui/mic-button';
 import { router, useForm, usePage } from '@inertiajs/react';
 import { useEffect, useRef, useState, type PointerEvent } from 'react';
 import type { SharedProps } from '../types';
 
 const MIN_HOLD_MS = 300;
 const TALK_KEY = 'v';
+const MIC_UNAVAILABLE = 'The microphone is unavailable.';
+
+async function microphoneAvailable(): Promise<boolean> {
+    if (!navigator.mediaDevices?.enumerateDevices) {
+        return false;
+    }
+
+    try {
+        const permission = await navigator.permissions.query({ name: 'microphone' });
+        if (permission.state === 'denied') {
+            return false;
+        }
+    } catch {
+        // This browser does not expose the microphone permission.
+    }
+
+    try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+
+        return devices.some((device) => device.kind === 'audioinput');
+    } catch {
+        return false;
+    }
+}
 
 export function PushToTalk() {
     const page = usePage<SharedProps>();
@@ -13,12 +36,14 @@ export function PushToTalk() {
     const form = useForm<{ clip: File | null }>({ clip: null });
     const [holding, setHolding] = useState(false);
     const [localMessage, setLocalMessage] = useState<string | null>(null);
+    const [micUnavailable, setMicUnavailable] = useState<boolean | null>(null);
     const recorder = useRef<MediaRecorder | null>(null);
     const stream = useRef<MediaStream | null>(null);
     const chunks = useRef<Blob[]>([]);
     const pressedAt = useRef(0);
     const startedAt = useRef(0);
     const pressed = useRef(false);
+    const micFailed = useRef(false);
     const keyboardHeld = useRef(false);
     const sawOpenRun = useRef(false);
     const beginRef = useRef<(event?: PointerEvent<HTMLButtonElement>) => void>(() => {});
@@ -45,20 +70,55 @@ export function PushToTalk() {
         }
     }, [page.url, voice]);
 
+    useEffect(() => {
+        let cancelled = false;
+
+        async function refresh() {
+            const available = await microphoneAvailable();
+            if (cancelled) {
+                return;
+            }
+
+            setMicUnavailable(!available);
+            setLocalMessage(available ? null : MIC_UNAVAILABLE);
+        }
+
+        void refresh();
+        navigator.mediaDevices?.addEventListener('devicechange', refresh);
+
+        return () => {
+            cancelled = true;
+            navigator.mediaDevices?.removeEventListener('devicechange', refresh);
+        };
+    }, []);
+
     function stopTracks() {
         stream.current?.getTracks().forEach((track) => track.stop());
         stream.current = null;
     }
 
+    function markUnavailable() {
+        stopTracks();
+        setHolding(false);
+        setMicUnavailable(true);
+        setLocalMessage(MIC_UNAVAILABLE);
+    }
+
     async function begin(event?: PointerEvent<HTMLButtonElement>) {
-        if (!actingUser || busy || pressed.current) {
+        if (!actingUser || busy || pressed.current || micUnavailable !== false) {
             return;
         }
 
-        event?.currentTarget.setPointerCapture(event.pointerId);
         pressed.current = true;
         pressedAt.current = Date.now();
+        micFailed.current = false;
+        setHolding(true);
         setLocalMessage(null);
+        try {
+            event?.currentTarget.setPointerCapture(event.pointerId);
+        } catch {
+            // The press still records if the pointer cannot be captured.
+        }
 
         try {
             const media = await navigator.mediaDevices.getUserMedia({ audio: true });
@@ -81,31 +141,36 @@ export function PushToTalk() {
             startedAt.current = Date.now();
             setHolding(true);
         } catch {
-            const short = Date.now() - pressedAt.current < MIN_HOLD_MS;
-            pressed.current = false;
-            stopTracks();
-            setHolding(false);
-            if (!short) {
-                setLocalMessage('The microphone is unavailable.');
-            }
+            micFailed.current = true;
+            markUnavailable();
         }
     }
 
     function end() {
-        const mediaRecorder = recorder.current;
-        pressed.current = false;
-        if (mediaRecorder === null || mediaRecorder.state === 'inactive') {
-            setHolding(false);
+        if (!pressed.current) {
             return;
         }
 
-        const heldFor = Date.now() - startedAt.current;
+        const mediaRecorder = recorder.current;
+        pressed.current = false;
+        if (mediaRecorder === null || mediaRecorder.state === 'inactive') {
+            if (micFailed.current) {
+                markUnavailable();
+            } else {
+                stopTracks();
+                setHolding(false);
+            }
+            micFailed.current = false;
+            return;
+        }
+
+        const recordedFor = Date.now() - startedAt.current;
         mediaRecorder.addEventListener('stop', () => {
             const blob = new Blob(chunks.current, { type: mediaRecorder.mimeType || 'audio/webm' });
             recorder.current = null;
             stopTracks();
             setHolding(false);
-            if (heldFor < MIN_HOLD_MS || blob.size === 0) {
+            if (recordedFor < MIN_HOLD_MS || blob.size === 0) {
                 return;
             }
 
@@ -154,50 +219,48 @@ export function PushToTalk() {
             endRef.current();
         }
 
+        function onPointerUp() {
+            if (pressed.current) {
+                endRef.current();
+            }
+        }
+
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('keyup', onKeyUp);
+        window.addEventListener('pointerup', onPointerUp);
 
         return () => {
             window.removeEventListener('keydown', onKeyDown);
             window.removeEventListener('keyup', onKeyUp);
+            window.removeEventListener('pointerup', onPointerUp);
         };
     }, []);
 
     const statusLabel = voice?.status === 'queued' || voice?.status === 'running' ? 'Working on it.' : null;
 
     return (
-        <div className="fixed right-4 bottom-4 z-50 flex max-w-sm flex-col items-end gap-2">
-            {(localMessage || voice?.transcript || voice?.result || statusLabel) && (
-                <div className="bg-card w-full rounded-lg border p-3 text-sm shadow" data-voice-status={voice?.status ?? 'idle'}>
-                    {localMessage && (
-                        <p role="status" data-voice-message={localMessage}>
-                            {localMessage}
-                        </p>
-                    )}
+        <div className="pointer-events-none fixed right-4 bottom-4 z-50 flex max-w-sm flex-col items-end gap-2">
+            {(voice?.transcript || voice?.result || statusLabel) && (
+                <div className="bg-card pointer-events-auto w-full rounded-lg border p-3 text-sm shadow" data-voice-status={voice?.status ?? 'idle'}>
                     {voice?.transcript && <p data-voice-transcript={voice.transcript}>{voice.transcript}</p>}
                     {statusLabel && <p role="status">{statusLabel}</p>}
                     {voice?.result && (voice.status === 'finished' || voice.status === 'failed') && <p data-voice-result={voice.result}>{voice.result}</p>}
                 </div>
             )}
-            <Button
-                type="button"
+            <MicButton
+                listening={holding}
+                label={`Speak (${TALK_KEY})`}
+                idleCaption=""
+                errorCaption={localMessage ?? undefined}
                 data-voice-button
                 data-voice-key={TALK_KEY}
                 data-voice-holding={holding ? 'true' : 'false'}
-                disabled={!actingUser || busy}
-                aria-pressed={holding}
+                disabled={!actingUser || busy || micUnavailable !== false}
                 aria-keyshortcuts={TALK_KEY}
-                className={cn(
-                    'size-24 rounded-full text-base font-semibold shadow-lg transition-transform',
-                    holding && 'scale-95 ring-4 ring-ring shadow-inner',
-                )}
                 onPointerDown={begin}
                 onPointerUp={end}
-                onPointerCancel={end}
                 onContextMenu={(event) => event.preventDefault()}
-            >
-                Talk ({TALK_KEY})
-            </Button>
+            />
         </div>
     );
 }

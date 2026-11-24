@@ -27,7 +27,7 @@ test('create, qualify, and send an estimate for Northwind', async ({ page }) => 
         }
     }
 
-    await page.getByRole('button', { name: 'Validate estimate' }).click();
+    await page.getByRole('button', { name: 'Send estimate' }).click();
     await expect(page.locator('[data-column="estimate sent"]')).toBeVisible();
     await expect(page.locator('[data-saved-grand-total="25"]')).toBeVisible();
     await expect(page.getByText('This is a test.')).toBeVisible();

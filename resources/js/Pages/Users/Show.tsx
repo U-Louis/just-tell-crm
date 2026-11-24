@@ -1,3 +1,4 @@
+import { FormActions } from '@/Components/FormActions';
 import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -31,12 +32,15 @@ export default function Show({ user, urls }: UserPageProps) {
     return (
         <>
             <Head title={user.name} />
+            <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h1 className="text-2xl font-medium">{user.name}</h1>
+                    <Button type="button" variant="secondary" size="sm" disabled>
+                        PDF (placeholder)
+                    </Button>
+                </div>
             <form noValidate onSubmit={submitUpdate} className="flex max-w-xl flex-col gap-4">
-                <h1 className="text-2xl font-medium">{user.name}</h1>
                 <p>Name {user.name}</p>
-                <Button type="button" variant="outline" size="sm" className="self-start" disabled>
-                    PDF (placeholder)
-                </Button>
                 <Field className="gap-1.5" data-invalid={nameError ? true : undefined}>
                     <FieldLabel htmlFor="user-name">Name</FieldLabel>
                     <Input
@@ -47,13 +51,16 @@ export default function Show({ user, urls }: UserPageProps) {
                     />
                     {nameError && <FieldError>{nameError}</FieldError>}
                 </Field>
-                <div className="flex flex-wrap gap-2">
-                    <Button type="submit">Update</Button>
-                    <Button type="button" variant="destructive" onClick={submitDelete}>
+                <FormActions>
+                    <Button type="submit" className="w-auto">
+                        Update
+                    </Button>
+                    <Button type="button" variant="destructive" className="w-auto" onClick={submitDelete}>
                         Delete
                     </Button>
-                </div>
+                </FormActions>
             </form>
+            </div>
         </>
     );
 }

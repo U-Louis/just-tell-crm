@@ -3,6 +3,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useForm } from '@inertiajs/react';
 import { CheckIcon } from 'lucide-react';
 import type { ActingUser } from '../types';
+import { IconTooltip } from './IconTooltip';
 
 function letterFor(name: string | null | undefined): string {
     const letter = Array.from((name ?? '').trim())[0];
@@ -20,9 +21,11 @@ export function ActingUserControl({ users, actingUser, selectUrl }: { users: Act
 
     return (
         <DropdownMenu>
-            <DropdownMenuTrigger render={<Button type="button" variant="outline" size="icon" className="rounded-full" aria-label="Acting user" />}>
-                {letterFor(actingUser?.name)}
-            </DropdownMenuTrigger>
+            <IconTooltip label="Acting user">
+                <DropdownMenuTrigger render={<Button type="button" variant="outline" size="icon" className="rounded-full" aria-label="Acting user" />}>
+                    {letterFor(actingUser?.name)}
+                </DropdownMenuTrigger>
+            </IconTooltip>
             <DropdownMenuContent align="end">
                 {users.map((user) => {
                     const current = actingUser?.id === user.id;

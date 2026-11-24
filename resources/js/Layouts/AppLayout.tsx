@@ -1,5 +1,6 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { buttonVariants } from '@/components/ui/button';
+import { TooltipProvider } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { Link, usePage } from '@inertiajs/react';
 import type { ReactNode } from 'react';
@@ -40,7 +41,8 @@ export default function AppLayout({ children }: { children: ReactNode }) {
     ];
 
     return (
-        <div className="bg-background min-h-screen">
+        <TooltipProvider delay={300}>
+            <div className="bg-background min-h-screen">
             <header className="bg-card border-b" data-acting-user={props.actingUser?.name ?? ''}>
                 <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-3">
                     <div className="flex flex-wrap items-center gap-4">
@@ -78,5 +80,6 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             </div>
             <PushToTalk />
         </div>
+        </TooltipProvider>
     );
 }

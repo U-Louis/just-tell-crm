@@ -52,12 +52,14 @@ export type ContactListProps = {
     nextUrl: string | null;
     csvUrl: string;
     createUrl: string;
+    importUrl: string;
     urls: {
         index: string;
     };
 };
 
 export type ContactCreateProps = {
+    companySizes: string[];
     urls: {
         store: string;
     };
@@ -81,6 +83,7 @@ export type EstimateListProps = {
     nextUrl: string | null;
     csvUrl: string;
     createUrl: string;
+    importUrl: string;
     urls: {
         index: string;
     };
@@ -102,6 +105,7 @@ export type KanbanColumn = {
 export type KanbanProps = {
     columns: KanbanColumn[];
     createUrl: string;
+    importUrl: string;
 };
 
 export type ProductOption = {
@@ -126,12 +130,18 @@ export type ContactDetail = {
     email: string | null;
     company: string | null;
     column: string;
+    description: string | null;
+    notes: string | null;
+    companySize: string | null;
+    ownerId: number | null;
+    validated: boolean;
     sentEmailBody: string | null;
     grandTotal: number | null;
 };
 
 export type ContactPageProps = {
     contact: ContactDetail;
+    companySizes: string[];
     products: ProductOption[];
     urls: {
         qualify: string;
@@ -199,12 +209,14 @@ export type ProductListProps = {
     nextUrl: string | null;
     csvUrl: string;
     createUrl: string;
+    importUrl: string;
     urls: {
         index: string;
     };
 };
 
 export type ProductCreateProps = {
+    categories: string[];
     urls: {
         store: string;
     };
@@ -215,7 +227,10 @@ export type ProductPageProps = {
         id: number;
         name: string;
         unitPrice: number;
+        description: string | null;
+        category: string | null;
     };
+    categories: string[];
     urls: {
         update: string;
         destroy: string;
@@ -236,6 +251,7 @@ export type EstimatePageProps = {
         id: number;
         contactName: string;
         grandTotal: number;
+        sentAt: string | null;
         lines: EstimateLineDetail[];
     };
     urls: {

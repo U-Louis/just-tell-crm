@@ -4,10 +4,13 @@ import { Input } from '@/components/ui/input';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { Search } from 'lucide-react';
 import type { FormEvent } from 'react';
+import { IconTooltip } from '../../Components/IconTooltip';
+import { ImportButton } from '../../Components/ImportButton';
 import { ListPagination } from '../../Components/ListPagination';
+import { PlusLink } from '../../Components/PlusLink';
 import type { ProductListProps } from '../../types';
 
-export default function Index({ products, count, page, pageCount, query, previousUrl, nextUrl, csvUrl, createUrl, urls }: ProductListProps) {
+export default function Index({ products, count, page, pageCount, query, previousUrl, nextUrl, csvUrl, createUrl, importUrl, urls }: ProductListProps) {
     const search = useForm({ q: query });
 
     function submitSearch(event: FormEvent) {
@@ -21,9 +24,8 @@ export default function Index({ products, count, page, pageCount, query, previou
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <h1 className="text-2xl font-medium">Products</h1>
-                    <Link href={createUrl} aria-label="Create product" className={buttonVariants({ variant: 'secondary', size: 'icon', className: 'text-base' })}>
-                        <span className="font-bold">+</span>
-                    </Link>
+                    <PlusLink href={createUrl} label="Create product" />
+                    <ImportButton url={importUrl} label="Import product" />
                 </div>
                 <a href={csvUrl} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
                     CSV
@@ -37,11 +39,14 @@ export default function Index({ products, count, page, pageCount, query, previou
                     value={search.data.q}
                     onChange={(event) => search.setData('q', event.target.value)}
                 />
-                <Button type="submit" variant="outline" size="icon" aria-label="Search">
-                    <Search />
-                </Button>
+                <IconTooltip label="Search">
+                    <Button type="submit" variant="outline" size="icon" aria-label="Search" className="cursor-pointer">
+                        <Search />
+                    </Button>
+                </IconTooltip>
             </form>
-            <ul className="mt-4 flex flex-col gap-2">
+            <div className="mt-4 overflow-hidden rounded-xl border">
+            <ul className="flex flex-col gap-2 p-3">
                 {products.map((product) => (
                     <li key={product.id} data-product-name={product.name}>
                         <Card size="sm">
@@ -61,6 +66,7 @@ export default function Index({ products, count, page, pageCount, query, previou
                 ))}
             </ul>
             <ListPagination count={count} page={page} pageCount={pageCount} previousUrl={previousUrl} nextUrl={nextUrl} />
+            </div>
         </>
     );
 }

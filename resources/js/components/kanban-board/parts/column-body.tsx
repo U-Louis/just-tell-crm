@@ -1,5 +1,6 @@
 "use client";
 
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import type {
   AnyKanbanCardRenderer,
@@ -41,11 +42,11 @@ export function ColumnBody({
     swimlanes && swimlanes.length > 0 ? swimlanes : [undefined];
 
   return (
-    <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden px-1.5">
+    <ScrollArea className="min-h-0 flex-1">
       {/* In single-lane mode the lone cell grows to fill the column so the whole
           empty area below the cards is a (highlighted) drop target. In swimlane
           mode each lane cell stays content-sized so the lanes stack + scroll. */}
-      <div className={cn("flex flex-col gap-2 py-1.5", !hasSwimlanes && "min-h-full")}>
+      <div className={cn("flex flex-col gap-2 px-1.5 py-1.5", !hasSwimlanes && "min-h-full")}>
         {lanes.map((lane) => {
           const items = column.items.filter((it) => {
             if (!swimlanes || swimlanes.length === 0) return true;
@@ -81,6 +82,6 @@ export function ColumnBody({
           );
         })}
       </div>
-    </div>
+    </ScrollArea>
   );
 }

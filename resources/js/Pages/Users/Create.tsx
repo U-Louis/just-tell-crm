@@ -1,3 +1,4 @@
+import { FormActions } from '@/Components/FormActions';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
@@ -53,7 +54,11 @@ export default function Create({ urls }: UserCreateProps) {
                                 />
                                 {nameError && <FieldError>{nameError}</FieldError>}
                             </Field>
-                            <Button type="submit">Create user</Button>
+                            <FormActions>
+                                <Button type="submit" className="w-auto">
+                                    Create user
+                                </Button>
+                            </FormActions>
                         </FieldGroup>
                     </CardContent>
                 </Card>

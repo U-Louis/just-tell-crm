@@ -1,33 +1,63 @@
+import { FormActions } from '@/Components/FormActions';
+import { SelectInput } from '@/Components/SelectInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { submissionFailed } from '@/lib/clearOnSuccess';
 import { inputError } from '@/lib/inputCheck';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
-import type { ContactCreateProps } from '../../types';
+import type { ContactCreateProps, SharedProps } from '../../types';
 
-export default function Create({ urls }: ContactCreateProps) {
-    const form = useForm({ name: '' });
-    const [nameError, setNameError] = useState<string | null>(null);
+export default function Create({ companySizes, urls }: ContactCreateProps) {
+    const page = usePage<SharedProps>();
+    const form = useForm({
+        name: '',
+        description: '',
+        notes: '',
+        company_size: '',
+        owner_id: page.props.actingUser ? String(page.props.actingUser.id) : '',
+    });
+    const [errors, setErrors] = useState({
+        name: null as string | null,
+        description: null as string | null,
+        notes: null as string | null,
+    });
 
     function submit(event: FormEvent) {
         event.preventDefault();
-        const error = inputError('text', form.data.name);
-        setNameError(error);
-        if (error) {
+        const nextErrors = {
+            name: inputError('text', form.data.name),
+            description: inputError('text', form.data.description),
+            notes: inputError('text', form.data.notes),
+        };
+        setErrors(nextErrors);
+        if (nextErrors.name || nextErrors.description || nextErrors.notes) {
             return;
         }
 
+        form.transform((data) => ({
+            name: data.name,
+            description: data.description,
+            notes: data.notes,
+            company_size: data.company_size,
+            owner_id: data.owner_id === '' ? null : Number(data.owner_id),
+        }));
         form.post(urls.store, {
-            onSuccess: (page) => {
-                if (submissionFailed(page)) {
+            onSuccess: (visit) => {
+                if (submissionFailed(visit)) {
                     return;
                 }
 
-                form.setData({ name: '' });
+                form.setData({
+                    name: '',
+                    description: '',
+                    notes: '',
+                    company_size: '',
+                    owner_id: page.props.actingUser ? String(page.props.actingUser.id) : '',
+                });
             },
         });
     }
@@ -43,17 +73,70 @@ export default function Create({ urls }: ContactCreateProps) {
                     </CardHeader>
                     <CardContent>
                         <FieldGroup className="gap-4">
-                            <Field className="gap-1.5" data-invalid={nameError ? true : undefined}>
+                            <Field className="gap-1.5" data-invalid={errors.name ? true : undefined}>
                                 <FieldLabel htmlFor="contact-name">Name</FieldLabel>
                                 <Input
                                     id="contact-name"
                                     value={form.data.name}
-                                    aria-invalid={nameError ? true : undefined}
+                                    aria-invalid={errors.name ? true : undefined}
                                     onChange={(event) => form.setData('name', event.target.value)}
                                 />
-                                {nameError && <FieldError>{nameError}</FieldError>}
+                                {errors.name && <FieldError>{errors.name}</FieldError>}
                             </Field>
-                            <Button type="submit">Create contact</Button>
+                            <Field className="gap-1.5" data-invalid={errors.description ? true : undefined}>
+                                <FieldLabel htmlFor="contact-description">Description</FieldLabel>
+                                <Input
+                                    id="contact-description"
+                                    value={form.data.description}
+                                    aria-invalid={errors.description ? true : undefined}
+                                    onChange={(event) => form.setData('description', event.target.value)}
+                                />
+                                {errors.description && <FieldError>{errors.description}</FieldError>}
+                            </Field>
+                            <Field className="gap-1.5" data-invalid={errors.notes ? true : undefined}>
+                                <FieldLabel htmlFor="contact-notes">Notes</FieldLabel>
+                                <Input
+                                    id="contact-notes"
+                                    value={form.data.notes}
+                                    aria-invalid={errors.notes ? true : undefined}
+                                    onChange={(event) => form.setData('notes', event.target.value)}
+                                />
+                                {errors.notes && <FieldError>{errors.notes}</FieldError>}
+                            </Field>
+                            <Field className="gap-1.5">
+                                <FieldLabel htmlFor="company-size">Company size</FieldLabel>
+                                <SelectInput
+                                    id="company-size"
+                                    value={form.data.company_size}
+                                    onChange={(event) => form.setData('company_size', event.target.value)}
+                                >
+                                    <option value="">Select a size</option>
+                                    {companySizes.map((size) => (
+                                        <option key={size} value={size}>
+                                            {size}
+                                        </option>
+                                    ))}
+                                </SelectInput>
+                            </Field>
+                            <Field className="gap-1.5">
+                                <FieldLabel htmlFor="contact-owner">Owner</FieldLabel>
+                                <SelectInput
+                                    id="contact-owner"
+                                    value={form.data.owner_id}
+                                    onChange={(event) => form.setData('owner_id', event.target.value)}
+                                >
+                                    {page.props.users.map((user) => (
+                                        <option key={user.id} value={String(user.id)}>
+                                            {user.name}
+                                        </option>
+                                    ))}
+                                </SelectInput>
+                            </Field>
+                            <FormActions>
+                                <Button type="submit" className="w-auto">
+                                    Create contact
+                                </Button>
+                            </FormActions>
                         </FieldGroup>
                     </CardContent>
                 </Card>

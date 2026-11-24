@@ -1,6 +1,7 @@
 import { KanbanBoard, type KanbanCardRenderer, type KanbanData, type KanbanItem } from '@/components/kanban-board';
-import { buttonVariants } from '@/components/ui/button';
-import { Head, Link, router } from '@inertiajs/react';
+import { Button, buttonVariants } from '@/components/ui/button';
+import { COLUMN_SWATCH } from '@/lib/columnColor';
+import { Head, Link, router, useForm } from '@inertiajs/react';
 import type { KanbanColumn, KanbanProps } from '../types';
 
 type ContactCard = {
@@ -27,7 +28,7 @@ function boardData(columns: KanbanColumn[]): KanbanData {
         columns: columns.map((column, index) => ({
             id: column.name,
             title: column.name,
-            color: columnBands[Math.min(index, columnBands.length - 1)],
+            color: COLUMN_SWATCH[column.name] ?? columnBands[Math.min(index, columnBands.length - 1)],
             allowReorder: false,
             items: column.contacts.map((contact) => ({
                 id: String(contact.id),
@@ -60,15 +61,21 @@ function openMove(moveUrl: string) {
     });
 }
 
-export default function Kanban({ columns, createUrl }: KanbanProps) {
+export default function Kanban({ columns, createUrl, importUrl }: KanbanProps) {
     const data = boardData(columns);
+    const importer = useForm({});
 
     return (
         <>
             <Head title="Board" />
-            <Link href={createUrl} className={buttonVariants({ className: 'mb-4 w-fit' })}>
-                New contact
-            </Link>
+            <div className="mb-4 flex flex-wrap items-center gap-2">
+                <Link href={createUrl} className={buttonVariants({ className: 'w-fit' })}>
+                    New contact
+                </Link>
+                <Button type="button" variant="secondary" className="w-auto" disabled={importer.processing} onClick={() => importer.post(importUrl)}>
+                    Import new contact
+                </Button>
+            </div>
             <div className="h-[32rem]">
                 <KanbanBoard
                     aria-label="Board"

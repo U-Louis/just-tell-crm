@@ -1,3 +1,4 @@
+import { FormActions } from '@/Components/FormActions';
 import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
@@ -51,17 +52,24 @@ export default function Show({ estimate, urls }: EstimatePageProps) {
     return (
         <>
             <Head title={estimate.contactName} />
+            <div className="flex flex-col gap-4">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h1 className="text-2xl font-medium">{estimate.contactName}</h1>
+                    <Button type="button" variant="secondary" size="sm" disabled>
+                        PDF (placeholder)
+                    </Button>
+                </div>
             <form noValidate onSubmit={submitUpdate} className="flex max-w-xl flex-col gap-4">
-                <h1 className="text-2xl font-medium">{estimate.contactName}</h1>
                 {estimate.lines.map((line) => (
                     <p key={line.productId}>
                         {line.productName} quantity {line.quantity} unit price {line.unitPrice}
                     </p>
                 ))}
                 <p data-saved-grand-total={estimate.grandTotal}>Saved grand total {estimate.grandTotal}</p>
-                <Button type="button" variant="outline" size="sm" className="self-start" disabled>
-                    PDF (placeholder)
-                </Button>
+                <Field className="gap-1.5">
+                    <FieldLabel htmlFor="sent-at">Sent at</FieldLabel>
+                    <Input id="sent-at" value={estimate.sentAt ?? ''} readOnly />
+                </Field>
                 {estimate.lines.map((line, index) => {
                     const quantityError = quantityErrors[index] ?? null;
 
@@ -88,13 +96,16 @@ export default function Show({ estimate, urls }: EstimatePageProps) {
                     );
                 })}
                 <p data-grand-total={preview}>Grand total {preview}</p>
-                <div className="flex flex-wrap gap-2">
-                    <Button type="submit">Update</Button>
-                    <Button type="button" variant="destructive" onClick={submitDelete}>
+                <FormActions>
+                    <Button type="submit" className="w-auto">
+                        Update
+                    </Button>
+                    <Button type="button" variant="destructive" className="w-auto" onClick={submitDelete}>
                         Delete
                     </Button>
-                </div>
+                </FormActions>
             </form>
+            </div>
         </>
     );
 }

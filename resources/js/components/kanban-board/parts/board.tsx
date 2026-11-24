@@ -1,5 +1,6 @@
 'use client';
 
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
 import { SortableContext, horizontalListSortingStrategy } from '@dnd-kit/sortable';
 import { useEffect, useRef } from 'react';
@@ -55,8 +56,9 @@ export function Board({
     // a passive listener can't preventDefault to stop the page also scrolling.
     const scrollRef = useRef<HTMLDivElement>(null);
     useEffect(() => {
-        const el = scrollRef.current;
-        if (!el) return;
+        const root = scrollRef.current;
+        const el = root?.querySelector<HTMLElement>('[data-slot=scroll-area-viewport]');
+        if (!root || !el) return;
         const onWheel = (e: WheelEvent) => {
             if (e.deltaY === 0 || e.shiftKey) return; // shift+wheel already scrolls X
             if (el.scrollWidth <= el.clientWidth) return; // nothing to scroll horizontally
@@ -73,12 +75,13 @@ export function Board({
             el.scrollLeft += e.deltaY;
             e.preventDefault();
         };
-        el.addEventListener('wheel', onWheel, { passive: false });
-        return () => el.removeEventListener('wheel', onWheel);
+        root.addEventListener('wheel', onWheel, { passive: false });
+        return () => root.removeEventListener('wheel', onWheel);
     }, []);
 
     return (
-        <div ref={scrollRef} className={cn('flex h-full min-h-0 w-full gap-3 overflow-x-auto overflow-y-hidden p-3', className)}>
+        <ScrollArea ref={scrollRef} className={cn('h-full min-h-0 w-full', className)}>
+            <div className="flex h-full w-max min-w-full gap-3 p-3">
             <SortableContext items={data.columns.map((c) => c.id)} strategy={horizontalListSortingStrategy}>
                 {data.columns.map((column) => (
                     <Column
@@ -104,6 +107,7 @@ export function Board({
                 ))}
             </SortableContext>
             {!readOnly && onColumnCreate ? <AddColumnButton onCreate={onColumnCreate} /> : null}
-        </div>
+            </div>
+        </ScrollArea>
     );
 }

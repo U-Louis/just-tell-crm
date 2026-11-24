@@ -1,3 +1,5 @@
+import { FormActions } from '@/Components/FormActions';
+import { SelectInput } from '@/Components/SelectInput';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from '@/components/ui/field';
@@ -73,18 +75,13 @@ export default function Create({ contacts, products }: EstimateCreateProps) {
                         <FieldGroup className="gap-4">
                             <Field className="max-w-sm gap-1.5">
                                 <FieldLabel htmlFor="estimate-contact">Contact</FieldLabel>
-                                <select
-                                    id="estimate-contact"
-                                    value={contactId}
-                                    onChange={(event) => setContactId(event.target.value)}
-                                    className="bg-input/50 focus-visible:border-ring focus-visible:ring-ring/30 h-9 w-full rounded-3xl border border-transparent px-3 text-sm outline-none focus-visible:ring-3"
-                                >
+                                <SelectInput id="estimate-contact" value={contactId} onChange={(event) => setContactId(event.target.value)}>
                                     {contacts.map((contact) => (
                                         <option key={contact.id} value={String(contact.id)}>
                                             {contact.name}
                                         </option>
                                     ))}
-                                </select>
+                                </SelectInput>
                             </Field>
                             {products.map((product, index) => {
                                 const quantityError = quantityErrors[index] ?? null;
@@ -112,7 +109,11 @@ export default function Create({ contacts, products }: EstimateCreateProps) {
                                 );
                             })}
                             <p data-grand-total={preview}>Grand total {preview}</p>
-                            <Button type="submit">Validate estimate</Button>
+                            <FormActions>
+                                <Button type="submit" className="w-auto">
+                                    Validate estimate
+                                </Button>
+                            </FormActions>
                         </FieldGroup>
                     </CardContent>
                 </Card>

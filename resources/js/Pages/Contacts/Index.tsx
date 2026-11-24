@@ -1,15 +1,18 @@
 import { Badge } from '@/components/ui/badge';
 import { Button, buttonVariants } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Head, router, useForm } from '@inertiajs/react';
 import { Search } from 'lucide-react';
-import { Head, Link, router, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useState } from 'react';
 import { ConfirmDeleteDialog } from '../../Components/ConfirmDeleteDialog';
+import { IconTooltip } from '../../Components/IconTooltip';
+import { ImportButton } from '../../Components/ImportButton';
 import { ListPagination } from '../../Components/ListPagination';
+import { PlusLink } from '../../Components/PlusLink';
 import type { ContactListProps } from '../../types';
 
-export default function Index({ contacts, count, page, pageCount, query, previousUrl, nextUrl, csvUrl, createUrl, urls }: ContactListProps) {
+export default function Index({ contacts, count, page, pageCount, query, previousUrl, nextUrl, csvUrl, createUrl, importUrl, urls }: ContactListProps) {
     const search = useForm({ q: query });
     const [destroyUrl, setDestroyUrl] = useState<string | null>(null);
 
@@ -24,9 +27,8 @@ export default function Index({ contacts, count, page, pageCount, query, previou
             <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <h1 className="text-2xl font-medium">Contacts</h1>
-                    <Link href={createUrl} aria-label="Create contact" className={buttonVariants({ variant: 'secondary', size: 'icon', className: 'text-base' })}>
-                        <span className="font-bold">+</span>
-                    </Link>
+                    <PlusLink href={createUrl} label="Create contact" />
+                    <ImportButton url={importUrl} label="Import new contact" />
                 </div>
                 <a href={csvUrl} className={buttonVariants({ variant: 'secondary', size: 'sm' })}>
                     CSV
@@ -40,9 +42,11 @@ export default function Index({ contacts, count, page, pageCount, query, previou
                     value={search.data.q}
                     onChange={(event) => search.setData('q', event.target.value)}
                 />
-                <Button type="submit" variant="outline" size="icon" aria-label="Search">
-                    <Search />
-                </Button>
+                <IconTooltip label="Search">
+                    <Button type="submit" variant="outline" size="icon" aria-label="Search" className="cursor-pointer">
+                        <Search />
+                    </Button>
+                </IconTooltip>
             </form>
             <div className="mt-4 overflow-hidden rounded-xl border">
                 <table className="w-full border-collapse text-sm">
@@ -89,8 +93,8 @@ export default function Index({ contacts, count, page, pageCount, query, previou
                         ))}
                     </tbody>
                 </table>
+                <ListPagination count={count} page={page} pageCount={pageCount} previousUrl={previousUrl} nextUrl={nextUrl} />
             </div>
-            <ListPagination count={count} page={page} pageCount={pageCount} previousUrl={previousUrl} nextUrl={nextUrl} />
             <ConfirmDeleteDialog
                 open={destroyUrl !== null}
                 destroyUrl={destroyUrl}
