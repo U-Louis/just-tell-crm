@@ -28,6 +28,7 @@ final class ProductListPageProps
             'nextUrl' => ListQuery::nextUrl('products.index', $page, $term, $hasMore),
             'csvUrl' => route('products.csv', $term === '' ? [] : ['q' => $term]),
             'createUrl' => route('products.create'),
+            'importUrl' => route('products.import'),
             'urls' => [
                 'index' => route('products.index'),
             ],

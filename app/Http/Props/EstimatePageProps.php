@@ -16,6 +16,7 @@ final class EstimatePageProps
                 'id' => $estimate->id,
                 'contactName' => $estimate->contactName,
                 'grandTotal' => $estimate->grandTotal,
+                'sentAt' => $estimate->sentAt,
                 'lines' => array_map(fn ($line) => [
                     'productId' => $line->productId,
                     'productName' => $line->productName,

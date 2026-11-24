@@ -31,6 +31,7 @@ final class ContactListPageProps
             'nextUrl' => ListQuery::nextUrl('contacts.index', $page, $term, $hasMore),
             'csvUrl' => route('contacts.csv', $term === '' ? [] : ['q' => $term]),
             'createUrl' => route('contacts.create'),
+            'importUrl' => route('contacts.import'),
             'urls' => [
                 'index' => route('contacts.index'),
             ],

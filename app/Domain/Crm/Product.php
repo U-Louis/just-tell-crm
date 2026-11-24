@@ -8,5 +8,7 @@ final class Product
         public readonly int $id,
         public readonly string $name,
         public readonly int $unitPrice,
+        public readonly ?string $description = null,
+        public readonly ?string $category = null,
     ) {}
 }

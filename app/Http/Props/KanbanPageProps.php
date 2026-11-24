@@ -39,6 +39,7 @@ final class KanbanPageProps
         return [
             'columns' => $columns,
             'createUrl' => route('contacts.create'),
+            'importUrl' => route('contacts.import'),
         ];
     }
 

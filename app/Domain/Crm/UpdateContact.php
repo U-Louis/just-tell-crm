@@ -6,8 +6,17 @@ final class UpdateContact
 {
     public function __construct(private CrmRepository $crm) {}
 
-    public function execute(Actor $actor, int $contactId, string $name, string $email, string $company): Contact
-    {
+    public function execute(
+        Actor $actor,
+        int $contactId,
+        string $name,
+        string $email,
+        string $company,
+        ?string $description = null,
+        ?string $notes = null,
+        ?string $companySize = null,
+        ?int $ownerId = null,
+    ): Contact {
         if ($actor->id < 1) {
             throw new CrmException('user.required', 'F13');
         }
@@ -24,18 +33,27 @@ final class UpdateContact
             ]);
         }
 
-        $email = trim($email);
-        $company = trim($company);
+        $ownerId = $ownerId ?? $contact->ownerId ?? $contact->userId;
+        if ($ownerId !== $actor->id && $this->crm->findUser($ownerId) === null) {
+            throw new CrmException('contact.owner.invalid', 'F13', [
+                'owner_id' => 'contact.owner.invalid',
+            ]);
+        }
 
         return $this->crm->saveContact(new Contact(
             $contact->id,
             $contact->userId,
             $name,
-            $email === '' ? null : $email,
-            $company === '' ? null : $company,
+            FieldText::optional($email, 255, 'contact.email.invalid', 'F13', 'email'),
+            FieldText::optional($company, 255, 'contact.company.invalid', 'F13', 'company'),
             $contact->column,
             $contact->sentEmailBody,
             $contact->grandTotal,
+            FieldText::optional($description, 255, 'contact.description.invalid', 'F13', 'description'),
+            FieldText::optional($notes, 255, 'contact.notes.invalid', 'F13', 'notes'),
+            CompanySize::optional($companySize, 'F13'),
+            $ownerId,
+            $contact->validated,
         ));
     }
 }

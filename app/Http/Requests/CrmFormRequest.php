@@ -71,4 +71,28 @@ abstract class CrmFormRequest extends FormRequest
 
         return $this->actingUser;
     }
+
+    /**
+     * @param  list<string>  $fields
+     */
+    protected function blankToNull(array $fields): void
+    {
+        $blank = [];
+        foreach ($fields as $field) {
+            if (! $this->exists($field)) {
+                continue;
+            }
+
+            $value = $this->input($field);
+            if (is_string($value)) {
+                $value = trim($value);
+            }
+
+            $blank[$field] = $value === '' ? null : $value;
+        }
+
+        if ($blank !== []) {
+            $this->merge($blank);
+        }
+    }
 }

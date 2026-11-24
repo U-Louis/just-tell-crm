@@ -67,7 +67,10 @@ final class EloquentCrmRepository implements CrmRepository
 
     public function userOwnsContact(int $userId): bool
     {
-        return ContactRecord::query()->where('user_id', $userId)->exists();
+        return ContactRecord::query()
+            ->where('user_id', $userId)
+            ->orWhere('owner_id', $userId)
+            ->exists();
     }
 
     public function searchUsers(string $query, int $limit, int $offset): array
@@ -175,6 +178,11 @@ final class EloquentCrmRepository implements CrmRepository
             'email' => $contact->email,
             'company' => $contact->company,
             'column' => $contact->column,
+            'description' => $contact->description,
+            'notes' => $contact->notes,
+            'company_size' => $contact->companySize,
+            'owner_id' => $contact->ownerId ?? $contact->userId,
+            'validated' => $contact->validated,
         ]);
 
         return $this->summary($record);
@@ -192,6 +200,11 @@ final class EloquentCrmRepository implements CrmRepository
             'email' => $contact->email,
             'company' => $contact->company,
             'column' => $contact->column,
+            'description' => $contact->description,
+            'notes' => $contact->notes,
+            'company_size' => $contact->companySize,
+            'owner_id' => $contact->ownerId ?? $contact->userId,
+            'validated' => $contact->validated,
         ])->save();
 
         return $this->detail($record);
@@ -213,7 +226,7 @@ final class EloquentCrmRepository implements CrmRepository
         return ProductRecord::query()
             ->orderBy('name')
             ->get()
-            ->map(fn (ProductRecord $product) => new Product($product->id, $product->name, (int) $product->unit_price))
+            ->map(fn (ProductRecord $product) => $this->toProduct($product))
             ->all();
     }
 
@@ -221,7 +234,7 @@ final class EloquentCrmRepository implements CrmRepository
     {
         $product = ProductRecord::query()->find($id);
 
-        return $product === null ? null : new Product($product->id, $product->name, (int) $product->unit_price);
+        return $product === null ? null : $this->toProduct($product);
     }
 
     public function searchProducts(string $query, int $limit, int $offset): array
@@ -230,7 +243,7 @@ final class EloquentCrmRepository implements CrmRepository
             ->offset($offset)
             ->limit($limit)
             ->get()
-            ->map(fn (ProductRecord $product) => new Product($product->id, $product->name, (int) $product->unit_price))
+            ->map(fn (ProductRecord $product) => $this->toProduct($product))
             ->all();
     }
 
@@ -239,14 +252,16 @@ final class EloquentCrmRepository implements CrmRepository
         return ProductRecord::query()->count();
     }
 
-    public function createProduct(string $name, int $unitPrice): Product
+    public function createProduct(string $name, int $unitPrice, ?string $description = null, ?string $category = null): Product
     {
         $product = ProductRecord::query()->create([
             'name' => $name,
             'unit_price' => $unitPrice,
+            'description' => $description,
+            'category' => $category,
         ]);
 
-        return new Product($product->id, $product->name, (int) $product->unit_price);
+        return $this->toProduct($product);
     }
 
     public function saveProduct(Product $product): Product
@@ -259,9 +274,11 @@ final class EloquentCrmRepository implements CrmRepository
         $record->fill([
             'name' => $product->name,
             'unit_price' => $product->unitPrice,
+            'description' => $product->description,
+            'category' => $product->category,
         ])->save();
 
-        return new Product($record->id, $record->name, (int) $record->unit_price);
+        return $this->toProduct($record);
     }
 
     public function deleteProduct(int $id): void
@@ -319,7 +336,35 @@ final class EloquentCrmRepository implements CrmRepository
             $contact->name,
             $lines,
             (int) $estimate->grand_total,
+            $this->timestamp($estimate->sent_at),
         );
+    }
+
+    public function addEstimate(int $contactId, array $lines, int $grandTotal): EstimateDetail
+    {
+        return DB::transaction(function () use ($contactId, $lines, $grandTotal) {
+            $estimate = EstimateRecord::query()->create([
+                'contact_id' => $contactId,
+                'grand_total' => $grandTotal,
+                'sent_at' => now(),
+            ]);
+
+            foreach ($lines as $line) {
+                EstimateLineRecord::query()->create([
+                    'estimate_id' => $estimate->id,
+                    'product_id' => $line->productId,
+                    'quantity' => $line->quantity,
+                    'unit_price' => $line->unitPrice,
+                ]);
+            }
+
+            $detail = $this->findEstimate($estimate->id);
+            if ($detail === null) {
+                throw new \RuntimeException('Estimate is missing.');
+            }
+
+            return $detail;
+        });
     }
 
     public function replaceEstimateLines(int $estimateId, array $lines, int $grandTotal): void
@@ -358,6 +403,7 @@ final class EloquentCrmRepository implements CrmRepository
             $estimate = EstimateRecord::query()->create([
                 'contact_id' => $contact->id,
                 'grand_total' => $grandTotal,
+                'sent_at' => now(),
             ]);
 
             foreach ($lines as $line) {
@@ -418,14 +464,7 @@ final class EloquentCrmRepository implements CrmRepository
 
     private function summary(ContactRecord $record): Contact
     {
-        return new Contact(
-            $record->id,
-            (int) $record->user_id,
-            $record->name,
-            $record->email,
-            $record->company,
-            $record->column,
-        );
+        return $this->contact($record, null, null);
     }
 
     private function detail(ContactRecord $record): Contact
@@ -433,6 +472,15 @@ final class EloquentCrmRepository implements CrmRepository
         $body = SentEmailRecord::query()->where('contact_id', $record->id)->latest('id')->value('body');
         $total = EstimateRecord::query()->where('contact_id', $record->id)->latest('id')->value('grand_total');
 
+        return $this->contact(
+            $record,
+            is_string($body) ? $body : null,
+            is_numeric($total) ? (int) $total : null,
+        );
+    }
+
+    private function contact(ContactRecord $record, ?string $sentEmailBody, ?int $grandTotal): Contact
+    {
         return new Contact(
             $record->id,
             (int) $record->user_id,
@@ -440,8 +488,33 @@ final class EloquentCrmRepository implements CrmRepository
             $record->email,
             $record->company,
             $record->column,
-            is_string($body) ? $body : null,
-            is_numeric($total) ? (int) $total : null,
+            $sentEmailBody,
+            $grandTotal,
+            $record->description,
+            $record->notes,
+            $record->company_size,
+            $record->owner_id !== null ? (int) $record->owner_id : (int) $record->user_id,
+            (bool) $record->validated,
         );
+    }
+
+    private function toProduct(ProductRecord $product): Product
+    {
+        return new Product(
+            $product->id,
+            $product->name,
+            (int) $product->unit_price,
+            $product->description,
+            $product->category,
+        );
+    }
+
+    private function timestamp(mixed $value): ?string
+    {
+        if ($value instanceof \DateTimeInterface) {
+            return $value->format('Y-m-d H:i:s');
+        }
+
+        return is_string($value) && $value !== '' ? $value : null;
     }
 }

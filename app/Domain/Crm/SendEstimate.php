@@ -22,6 +22,12 @@ final class SendEstimate
             throw new \RuntimeException('Contact is missing.');
         }
 
+        if (! $contact->validated) {
+            throw new CrmException('contact.not_validated', 'F4', [
+                'validated' => 'contact.not_validated',
+            ]);
+        }
+
         if ($contact->email === null || trim($contact->email) === '') {
             throw new CrmException('contact.email.required', 'F5', [
                 'email' => 'contact.email.required',
@@ -58,6 +64,11 @@ final class SendEstimate
             Column::ESTIMATE_SENT,
             self::BODY,
             $total,
+            $contact->description,
+            $contact->notes,
+            $contact->companySize,
+            $contact->ownerId,
+            $contact->validated,
         );
 
         return $this->crm->recordEstimateSend(

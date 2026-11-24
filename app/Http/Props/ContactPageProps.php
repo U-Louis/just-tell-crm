@@ -2,6 +2,7 @@
 
 namespace App\Http\Props;
 
+use App\Domain\Crm\CompanySize;
 use App\Domain\Crm\Contact;
 use App\Domain\Crm\Product;
 
@@ -19,9 +20,15 @@ final class ContactPageProps
                 'email' => $contact->email,
                 'company' => $contact->company,
                 'column' => $contact->column,
+                'description' => $contact->description,
+                'notes' => $contact->notes,
+                'companySize' => $contact->companySize,
+                'ownerId' => $contact->ownerId,
+                'validated' => $contact->validated,
                 'sentEmailBody' => $contact->sentEmailBody,
                 'grandTotal' => $contact->grandTotal,
             ],
+            'companySizes' => CompanySize::VALUES,
             'products' => array_map(fn (Product $product) => [
                 'id' => $product->id,
                 'name' => $product->name,

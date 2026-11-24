@@ -7,6 +7,7 @@ use App\Domain\Crm\Contact;
 use App\Domain\Crm\CreateContact;
 use App\Domain\Crm\CrmRepository;
 use App\Domain\Crm\DeleteContact;
+use App\Domain\Crm\Fixtures\FixtureService;
 use App\Domain\Crm\QualifyContact;
 use App\Domain\Crm\UpdateContact;
 use App\Domain\Crm\User;
@@ -20,6 +21,7 @@ use App\Http\Props\ContactListPageProps;
 use App\Http\Props\ContactPageProps;
 use App\Http\Requests\CreateContactRequest;
 use App\Http\Requests\DeleteContactRequest;
+use App\Http\Requests\ImportFixtureRequest;
 use App\Http\Requests\QualifyContactRequest;
 use App\Http\Requests\UpdateContactRequest;
 use App\Policies\CrmPolicy;
@@ -45,10 +47,27 @@ final class ContactController
 
     public function store(CreateContactRequest $request, CreateContact $action): RedirectResponse
     {
-        $action->execute(new Actor($request->actor()->id), (string) $request->validated('name'));
+        $action->execute(
+            new Actor($request->actor()->id),
+            (string) $request->validated('name'),
+            null,
+            null,
+            $this->optionalString($request->validated('description')),
+            $this->optionalString($request->validated('notes')),
+            $this->optionalString($request->validated('company_size')),
+            $request->filled('owner_id') ? (int) $request->validated('owner_id') : null,
+        );
         CrmLog::write($request, 'F1', 'success', null);
 
         return redirect()->route('home');
+    }
+
+    public function import(ImportFixtureRequest $request, FixtureService $fixtures): RedirectResponse
+    {
+        $fixtures->importContact(new Actor($request->actor()->id));
+        CrmLog::write($request, null, 'success', null);
+
+        return back();
     }
 
     public function show(Request $request, int $contact, CrmRepository $crm, ActingUser $acting): Response
@@ -76,7 +95,7 @@ final class ContactController
 
     public function update(UpdateContactRequest $request, int $contact, UpdateContact $action, CrmRepository $crm): RedirectResponse
     {
-        $this->visible($contact, $crm, $request->actor());
+        $found = $this->visible($contact, $crm, $request->actor());
         $email = $request->validated('email');
         $company = $request->validated('company');
         $action->execute(
@@ -85,6 +104,10 @@ final class ContactController
             (string) $request->validated('name'),
             is_string($email) ? $email : '',
             is_string($company) ? $company : '',
+            $request->exists('description') ? $this->optionalString($request->validated('description')) : $found->description,
+            $request->exists('notes') ? $this->optionalString($request->validated('notes')) : $found->notes,
+            $request->exists('company_size') ? $this->optionalString($request->validated('company_size')) : $found->companySize,
+            $request->filled('owner_id') ? (int) $request->validated('owner_id') : ($found->ownerId ?? $found->userId),
         );
         CrmLog::write($request, 'F13', 'success', null);
 
@@ -154,5 +177,10 @@ final class ContactController
         }
 
         return $found;
+    }
+
+    private function optionalString(mixed $value): ?string
+    {
+        return is_string($value) ? $value : null;
     }
 }

@@ -17,5 +17,20 @@ class ContactRecord extends Model
         'email',
         'company',
         'column',
+        'description',
+        'notes',
+        'company_size',
+        'owner_id',
+        'validated',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'validated' => 'boolean',
+        ];
+    }
 }

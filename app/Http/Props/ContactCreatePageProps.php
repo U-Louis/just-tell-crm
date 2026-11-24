@@ -2,6 +2,8 @@
 
 namespace App\Http\Props;
 
+use App\Domain\Crm\CompanySize;
+
 final class ContactCreatePageProps
 {
     /**
@@ -10,6 +12,7 @@ final class ContactCreatePageProps
     public static function make(): array
     {
         return [
+            'companySizes' => CompanySize::VALUES,
             'urls' => [
                 'store' => route('contacts.store'),
             ],

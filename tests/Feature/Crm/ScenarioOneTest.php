@@ -75,6 +75,7 @@ class ScenarioOneTest extends TestCase
             'email' => 'northwind@example.com',
             'company' => 'Northwind',
             'column' => 'qualified',
+            'validated' => true,
         ]);
     }
 
@@ -128,7 +129,7 @@ class ScenarioOneTest extends TestCase
                 ->where('contact.column', 'estimate sent')
                 ->where('contact.sentEmailBody', 'This is a test.')
                 ->where('contact.grandTotal', 25)
-                ->missing('contact.notes'));
+                ->where('contact.notes', null));
     }
 
     public function test_f5_send_without_email_is_refused_and_leaves_qualified(): void
@@ -142,6 +143,7 @@ class ScenarioOneTest extends TestCase
             'email' => null,
             'company' => 'Northwind',
             'column' => 'qualified',
+            'validated' => true,
         ]);
 
         $response = $this->withSession(['acting_user_id' => $ada->id])
@@ -160,6 +162,34 @@ class ScenarioOneTest extends TestCase
             'id' => $contact->id,
             'column' => 'qualified',
             'email' => null,
+        ]);
+        $this->assertDatabaseCount('estimates', 0);
+        $this->assertDatabaseCount('sent_emails', 0);
+    }
+
+    public function test_send_before_the_contact_is_validated_is_refused(): void
+    {
+        $ada = User::factory()->create(['name' => 'Ada']);
+        $cable = ProductRecord::query()->create(['name' => 'Cable', 'unit_price' => 10]);
+        $this->withSession(['acting_user_id' => $ada->id])
+            ->post(route('contacts.store'), ['name' => 'Northwind']);
+        $contactId = (int) ContactRecord::query()->where('name', 'Northwind')->value('id');
+
+        $response = $this->withSession(['acting_user_id' => $ada->id])
+            ->from(route('contacts.show', $contactId))
+            ->post(route('contacts.estimates.store', $contactId), [
+                'lines' => [
+                    ['product_id' => $cable->id, 'quantity' => 2],
+                ],
+            ]);
+
+        $response->assertStatus(302);
+        $response->assertSessionHas('error.code', 'contact.not_validated');
+        $response->assertSessionHas('error.feature_id', 'F4');
+        $this->assertDatabaseHas('contacts', [
+            'id' => $contactId,
+            'column' => 'new',
+            'validated' => false,
         ]);
         $this->assertDatabaseCount('estimates', 0);
         $this->assertDatabaseCount('sent_emails', 0);

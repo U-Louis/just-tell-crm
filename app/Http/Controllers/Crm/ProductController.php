@@ -6,6 +6,7 @@ use App\Domain\Crm\Actor;
 use App\Domain\Crm\CreateProduct;
 use App\Domain\Crm\CrmRepository;
 use App\Domain\Crm\DeleteProduct;
+use App\Domain\Crm\Fixtures\FixtureService;
 use App\Domain\Crm\Product;
 use App\Domain\Crm\UpdateProduct;
 use App\Domain\Crm\User;
@@ -19,6 +20,7 @@ use App\Http\Props\ProductListPageProps;
 use App\Http\Props\ProductPageProps;
 use App\Http\Requests\CreateProductRequest;
 use App\Http\Requests\DeleteProductRequest;
+use App\Http\Requests\ImportFixtureRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Policies\CrmPolicy;
 use Illuminate\Http\RedirectResponse;
@@ -47,10 +49,20 @@ final class ProductController
             new Actor($request->actor()->id),
             (string) $request->validated('name'),
             (int) $request->validated('unit_price'),
+            $this->optionalString($request->validated('description')),
+            $this->optionalString($request->validated('category')),
         );
         CrmLog::write($request, 'F16', 'success', null);
 
         return redirect()->route('products.index');
+    }
+
+    public function import(ImportFixtureRequest $request, FixtureService $fixtures): RedirectResponse
+    {
+        $fixtures->importProduct(new Actor($request->actor()->id));
+        CrmLog::write($request, null, 'success', null);
+
+        return back();
     }
 
     public function show(Request $request, int $product, CrmRepository $crm, ActingUser $acting): Response
@@ -62,12 +74,14 @@ final class ProductController
 
     public function update(UpdateProductRequest $request, int $product, UpdateProduct $action, CrmRepository $crm): RedirectResponse
     {
-        $this->visible($product, $crm, $request->actor());
+        $found = $this->visible($product, $crm, $request->actor());
         $action->execute(
             new Actor($request->actor()->id),
             $product,
             (string) $request->validated('name'),
             (int) $request->validated('unit_price'),
+            $request->exists('description') ? $this->optionalString($request->validated('description')) : $found->description,
+            $request->exists('category') ? $this->optionalString($request->validated('category')) : $found->category,
         );
         CrmLog::write($request, 'F20', 'success', null);
 
@@ -131,5 +145,10 @@ final class ProductController
         }
 
         return $found;
+    }
+
+    private function optionalString(mixed $value): ?string
+    {
+        return is_string($value) ? $value : null;
     }
 }

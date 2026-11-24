@@ -13,6 +13,11 @@ final class Contact
         public readonly string $column,
         public readonly ?string $sentEmailBody = null,
         public readonly ?int $grandTotal = null,
+        public readonly ?string $description = null,
+        public readonly ?string $notes = null,
+        public readonly ?string $companySize = null,
+        public readonly ?int $ownerId = null,
+        public readonly bool $validated = false,
     ) {}
 
     public function qualify(string $email, string $company, string $column): self
@@ -26,6 +31,11 @@ final class Contact
             $column,
             $this->sentEmailBody,
             $this->grandTotal,
+            $this->description,
+            $this->notes,
+            $this->companySize,
+            $this->ownerId,
+            true,
         );
     }
 }

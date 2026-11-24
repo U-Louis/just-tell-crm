@@ -14,5 +14,7 @@ class ProductRecord extends Model
     protected $fillable = [
         'name',
         'unit_price',
+        'description',
+        'category',
     ];
 }

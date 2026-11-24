@@ -74,7 +74,7 @@ interface CrmRepository
 
     public function findProduct(int $id): ?Product;
 
-    public function createProduct(string $name, int $unitPrice): Product;
+    public function createProduct(string $name, int $unitPrice, ?string $description = null, ?string $category = null): Product;
 
     public function saveProduct(Product $product): Product;
 
@@ -92,6 +92,11 @@ interface CrmRepository
     public function replaceEstimateLines(int $estimateId, array $lines, int $grandTotal): void;
 
     public function deleteEstimate(int $id): void;
+
+    /**
+     * @param  list<EstimateLine>  $lines
+     */
+    public function addEstimate(int $contactId, array $lines, int $grandTotal): EstimateDetail;
 
     /**
      * @param  list<EstimateLine>  $lines

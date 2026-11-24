@@ -91,7 +91,7 @@ final class InMemoryCrmRepository implements CrmRepository
     public function userOwnsContact(int $userId): bool
     {
         foreach ($this->contacts as $contact) {
-            if ($contact->userId === $userId) {
+            if ($contact->userId === $userId || $contact->ownerId === $userId) {
                 return true;
             }
         }
@@ -178,6 +178,11 @@ final class InMemoryCrmRepository implements CrmRepository
             $contact->column,
             $contact->sentEmailBody,
             $contact->grandTotal,
+            $contact->description,
+            $contact->notes,
+            $contact->companySize,
+            $contact->ownerId ?? $contact->userId,
+            $contact->validated,
         );
         $this->contacts[$id] = $stored;
 
@@ -231,10 +236,10 @@ final class InMemoryCrmRepository implements CrmRepository
         return $this->products[$id] ?? null;
     }
 
-    public function createProduct(string $name, int $unitPrice): Product
+    public function createProduct(string $name, int $unitPrice, ?string $description = null, ?string $category = null): Product
     {
         $id = $this->products === [] ? 1 : max(array_keys($this->products)) + 1;
-        $product = new Product($id, $name, $unitPrice);
+        $product = new Product($id, $name, $unitPrice, $description, $category);
         $this->products[$id] = $product;
 
         return $product;
@@ -311,6 +316,7 @@ final class InMemoryCrmRepository implements CrmRepository
             $contact->name,
             $lines,
             $estimate->grandTotal,
+            $estimate->sentAt,
         );
     }
 
@@ -321,7 +327,19 @@ final class InMemoryCrmRepository implements CrmRepository
             throw new RuntimeException('Estimate is missing.');
         }
 
-        $this->storedEstimates[$estimateId] = new Estimate($estimate->contactId, $lines, $grandTotal);
+        $this->storedEstimates[$estimateId] = new Estimate($estimate->contactId, $lines, $grandTotal, $estimate->sentAt);
+    }
+
+    public function addEstimate(int $contactId, array $lines, int $grandTotal): EstimateDetail
+    {
+        $id = $this->nextEstimateId++;
+        $this->storedEstimates[$id] = new Estimate($contactId, $lines, $grandTotal, gmdate('Y-m-d H:i:s'));
+        $detail = $this->findEstimate($id);
+        if ($detail === null) {
+            throw new RuntimeException('Estimate is missing.');
+        }
+
+        return $detail;
     }
 
     public function deleteEstimate(int $id): void
@@ -332,7 +350,7 @@ final class InMemoryCrmRepository implements CrmRepository
     public function recordEstimateSend(Contact $contact, array $lines, int $grandTotal, string $to, string $body): Contact
     {
         $id = $this->nextEstimateId++;
-        $this->storedEstimates[$id] = new Estimate((int) $contact->id, $lines, $grandTotal);
+        $this->storedEstimates[$id] = new Estimate((int) $contact->id, $lines, $grandTotal, gmdate('Y-m-d H:i:s'));
         $this->sent[] = new SentEmail((int) $contact->id, $to, $body);
         $stored = new Contact(
             $contact->id,
@@ -343,6 +361,11 @@ final class InMemoryCrmRepository implements CrmRepository
             $contact->column,
             $body,
             $grandTotal,
+            $contact->description,
+            $contact->notes,
+            $contact->companySize,
+            $contact->ownerId ?? $contact->userId,
+            $contact->validated,
         );
         $this->contacts[(int) $contact->id] = $stored;
 

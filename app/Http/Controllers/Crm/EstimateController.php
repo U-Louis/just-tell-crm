@@ -6,6 +6,7 @@ use App\Domain\Crm\Actor;
 use App\Domain\Crm\CrmRepository;
 use App\Domain\Crm\DeleteEstimate;
 use App\Domain\Crm\EstimateDetail;
+use App\Domain\Crm\Fixtures\FixtureService;
 use App\Domain\Crm\ListedEstimate;
 use App\Domain\Crm\SendEstimate;
 use App\Domain\Crm\UpdateEstimate;
@@ -19,6 +20,7 @@ use App\Http\Props\EstimateCreatePageProps;
 use App\Http\Props\EstimateListPageProps;
 use App\Http\Props\EstimatePageProps;
 use App\Http\Requests\DeleteEstimateRequest;
+use App\Http\Requests\ImportFixtureRequest;
 use App\Http\Requests\SendEstimateRequest;
 use App\Http\Requests\UpdateEstimateRequest;
 use App\Policies\CrmPolicy;
@@ -35,6 +37,14 @@ final class EstimateController
         [$estimates, $count, $page, $term, $hasMore] = $this->page($request, $crm, $acting);
 
         return Inertia::render('Estimates/Index', EstimateListPageProps::make($estimates, $count, $page, $term, $hasMore));
+    }
+
+    public function import(ImportFixtureRequest $request, FixtureService $fixtures): RedirectResponse
+    {
+        $fixtures->importEstimate(new Actor($request->actor()->id));
+        CrmLog::write($request, null, 'success', null);
+
+        return back();
     }
 
     public function create(Request $request, CrmRepository $crm, ActingUser $acting): Response

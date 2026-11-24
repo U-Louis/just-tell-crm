@@ -14,5 +14,16 @@ class EstimateRecord extends Model
     protected $fillable = [
         'contact_id',
         'grand_total',
+        'sent_at',
     ];
+
+    /**
+     * @return array<string, string>
+     */
+    protected function casts(): array
+    {
+        return [
+            'sent_at' => 'datetime',
+        ];
+    }
 }

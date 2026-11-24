@@ -28,6 +28,7 @@ Route::get('/users/{user}', [UserController::class, 'show'])->whereNumber('user'
 Route::put('/users/{user}', [UserController::class, 'update'])->whereNumber('user')->name('users.update');
 Route::delete('/users/{user}', [UserController::class, 'destroy'])->whereNumber('user')->name('users.destroy');
 
+Route::post('/contacts/import', [ContactController::class, 'import'])->name('contacts.import');
 Route::get('/contacts/export.csv', [ContactController::class, 'csv'])->name('contacts.csv');
 Route::get('/contacts', [ContactController::class, 'index'])->name('contacts.index');
 Route::get('/contacts/create', [ContactController::class, 'create'])->name('contacts.create');
@@ -39,6 +40,7 @@ Route::delete('/contacts/{contact}', [ContactController::class, 'destroy'])->whe
 Route::post('/contacts/{contact}/qualify', [ContactController::class, 'qualify'])->whereNumber('contact')->name('contacts.qualify');
 Route::post('/contacts/{contact}/estimates', [EstimateController::class, 'store'])->whereNumber('contact')->name('contacts.estimates.store');
 
+Route::post('/products/import', [ProductController::class, 'import'])->name('products.import');
 Route::get('/products/export.csv', [ProductController::class, 'csv'])->name('products.csv');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/create', [ProductController::class, 'create'])->name('products.create');
@@ -48,6 +50,7 @@ Route::get('/products/{product}', [ProductController::class, 'show'])->whereNumb
 Route::put('/products/{product}', [ProductController::class, 'update'])->whereNumber('product')->name('products.update');
 Route::delete('/products/{product}', [ProductController::class, 'destroy'])->whereNumber('product')->name('products.destroy');
 
+Route::post('/estimates/import', [EstimateController::class, 'import'])->name('estimates.import');
 Route::get('/estimates/export.csv', [EstimateController::class, 'csv'])->name('estimates.csv');
 Route::get('/estimates', [EstimateController::class, 'index'])->name('estimates.index');
 Route::get('/estimates/create', [EstimateController::class, 'create'])->name('estimates.create');

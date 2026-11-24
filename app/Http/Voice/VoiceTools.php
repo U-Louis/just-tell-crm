@@ -108,13 +108,7 @@ final class VoiceTools
             ],
             'contacts_show' => $this->contactPayload($this->visibleContact($this->requiredInt($input, 'contact_id'), $actor)),
             'contacts_store' => $this->contactPayload($this->createContact->execute($acting, $this->text($input, 'name'))),
-            'contacts_update' => $this->contactPayload($this->updateContact->execute(
-                $acting,
-                $this->visibleContact($this->requiredInt($input, 'contact_id'), $actor)->id,
-                $this->text($input, 'name'),
-                $this->text($input, 'email'),
-                $this->text($input, 'company'),
-            )),
+            'contacts_update' => $this->contactPayload($this->updateContactTool($acting, $actor, $input)),
             'contacts_destroy' => $this->deleted($this->deleteContact, $acting, $this->visibleContact($this->requiredInt($input, 'contact_id'), $actor)->id),
             'contacts_qualify' => $this->contactPayload($this->qualifyContact->execute(
                 $acting,
@@ -133,12 +127,7 @@ final class VoiceTools
             ],
             'products_show' => $this->productPayload($this->visibleProduct($this->requiredInt($input, 'product_id'), $actor)),
             'products_store' => $this->productPayload($this->createProduct->execute($acting, $this->text($input, 'name'), $this->requiredInt($input, 'unit_price'))),
-            'products_update' => $this->productPayload($this->updateProduct->execute(
-                $acting,
-                $this->visibleProduct($this->requiredInt($input, 'product_id'), $actor)->id,
-                $this->text($input, 'name'),
-                $this->requiredInt($input, 'unit_price'),
-            )),
+            'products_update' => $this->productPayload($this->updateProductTool($acting, $actor, $input)),
             'products_destroy' => $this->deleted($this->deleteProduct, $acting, $this->visibleProduct($this->requiredInt($input, 'product_id'), $actor)->id),
             'estimates_index' => [
                 'estimates' => array_map(fn (ListedEstimate $estimate) => [
@@ -287,7 +276,7 @@ final class VoiceTools
     }
 
     /**
-     * @return array{id: int|null, name: string, email: string|null, company: string|null, column: string, sent_email_body: string|null, grand_total: int|null}
+     * @return array{id: int|null, name: string, email: string|null, company: string|null, column: string, description: string|null, notes: string|null, company_size: string|null, owner_id: int|null, validated: bool, sent_email_body: string|null, grand_total: int|null}
      */
     private function contactPayload(Contact $contact): array
     {
@@ -297,13 +286,18 @@ final class VoiceTools
             'email' => $contact->email,
             'company' => $contact->company,
             'column' => $contact->column,
+            'description' => $contact->description,
+            'notes' => $contact->notes,
+            'company_size' => $contact->companySize,
+            'owner_id' => $contact->ownerId,
+            'validated' => $contact->validated,
             'sent_email_body' => $contact->sentEmailBody,
             'grand_total' => $contact->grandTotal,
         ];
     }
 
     /**
-     * @return array{id: int, name: string, unit_price: int}
+     * @return array{id: int, name: string, unit_price: int, description: string|null, category: string|null}
      */
     private function productPayload(Product $product): array
     {
@@ -311,6 +305,8 @@ final class VoiceTools
             'id' => $product->id,
             'name' => $product->name,
             'unit_price' => $product->unitPrice,
+            'description' => $product->description,
+            'category' => $product->category,
         ];
     }
 
@@ -324,6 +320,7 @@ final class VoiceTools
             'contact_id' => $estimate->contactId,
             'contact_name' => $estimate->contactName,
             'grand_total' => $estimate->grandTotal,
+            'sent_at' => $estimate->sentAt,
             'lines' => array_map(fn ($line) => [
                 'product_id' => $line->productId,
                 'product_name' => $line->productName,
@@ -331,6 +328,43 @@ final class VoiceTools
                 'unit_price' => $line->unitPrice,
             ], $estimate->lines),
         ];
+    }
+
+    /**
+     * @param  array<string, mixed>  $input
+     */
+    private function updateContactTool(Actor $acting, User $actor, array $input): Contact
+    {
+        $contact = $this->visibleContact($this->requiredInt($input, 'contact_id'), $actor);
+
+        return $this->updateContact->execute(
+            $acting,
+            (int) $contact->id,
+            $this->text($input, 'name'),
+            $this->text($input, 'email'),
+            $this->text($input, 'company'),
+            array_key_exists('description', $input) ? $this->text($input, 'description') : $contact->description,
+            array_key_exists('notes', $input) ? $this->text($input, 'notes') : $contact->notes,
+            array_key_exists('company_size', $input) ? $this->text($input, 'company_size') : $contact->companySize,
+            array_key_exists('owner_id', $input) ? $this->requiredInt($input, 'owner_id') : ($contact->ownerId ?? $contact->userId),
+        );
+    }
+
+    /**
+     * @param  array<string, mixed>  $input
+     */
+    private function updateProductTool(Actor $acting, User $actor, array $input): Product
+    {
+        $product = $this->visibleProduct($this->requiredInt($input, 'product_id'), $actor);
+
+        return $this->updateProduct->execute(
+            $acting,
+            $product->id,
+            $this->text($input, 'name'),
+            $this->requiredInt($input, 'unit_price'),
+            array_key_exists('description', $input) ? $this->text($input, 'description') : $product->description,
+            array_key_exists('category', $input) ? $this->text($input, 'category') : $product->category,
+        );
     }
 
     /**

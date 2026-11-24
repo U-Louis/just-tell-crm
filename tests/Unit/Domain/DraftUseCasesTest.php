@@ -254,6 +254,7 @@ class DraftUseCasesTest extends TestCase
             'northwind@example.com',
             'Northwind',
             'qualified',
+            validated: true,
         ));
         (new SendEstimate($repository))->execute(new Actor(1), (int) $contact->id, [
             ['product_id' => 1, 'quantity' => 2],

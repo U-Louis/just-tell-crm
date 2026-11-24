@@ -14,5 +14,6 @@ final class EstimateDetail
         public readonly string $contactName,
         public readonly array $lines,
         public readonly int $grandTotal,
+        public readonly ?string $sentAt = null,
     ) {}
 }

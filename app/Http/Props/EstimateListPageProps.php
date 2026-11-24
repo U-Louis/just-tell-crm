@@ -29,6 +29,7 @@ final class EstimateListPageProps
             'nextUrl' => ListQuery::nextUrl('estimates.index', $page, $term, $hasMore),
             'csvUrl' => route('estimates.csv', $term === '' ? [] : ['q' => $term]),
             'createUrl' => route('estimates.create'),
+            'importUrl' => route('estimates.import'),
             'urls' => [
                 'index' => route('estimates.index'),
             ],

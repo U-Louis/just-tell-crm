@@ -6,7 +6,7 @@ final class CreateProduct
 {
     public function __construct(private CrmRepository $crm) {}
 
-    public function execute(Actor $actor, string $name, int $unitPrice): Product
+    public function execute(Actor $actor, string $name, int $unitPrice, ?string $description = null, ?string $category = null): Product
     {
         if ($actor->id < 1) {
             throw new CrmException('user.required', 'F16');
@@ -31,6 +31,11 @@ final class CreateProduct
             ]);
         }
 
-        return $this->crm->createProduct($name, $unitPrice);
+        return $this->crm->createProduct(
+            $name,
+            $unitPrice,
+            FieldText::optional($description, 255, 'product.description.invalid', 'F16', 'description'),
+            ProductCategory::optional($category, 'F16'),
+        );
     }
 }

@@ -58,6 +58,7 @@ class ScenarioOneTest extends TestCase
         $this->assertSame('northwind@example.com', $qualified->email);
         $this->assertSame('Northwind', $qualified->company);
         $this->assertSame('qualified', $qualified->column);
+        $this->assertTrue($qualified->validated);
         $this->assertSame(1, $qualified->userId);
     }
 
@@ -72,6 +73,7 @@ class ScenarioOneTest extends TestCase
             'northwind@example.com',
             'Northwind',
             'qualified',
+            validated: true,
         ));
 
         $sent = (new SendEstimate($repository))->execute(new Actor(1), (int) $contact->id, [
@@ -99,6 +101,7 @@ class ScenarioOneTest extends TestCase
             null,
             'Northwind',
             'qualified',
+            validated: true,
         ));
 
         try {
@@ -119,6 +122,37 @@ class ScenarioOneTest extends TestCase
         $this->assertSame([], $repository->estimates());
     }
 
+    public function test_send_before_the_contact_is_validated_writes_nothing(): void
+    {
+        $repository = $this->repositoryWithProducts();
+        $contact = (new CreateContact($repository))->execute(new Actor(1), 'Northwind');
+        $repository->saveContact(new Contact(
+            $contact->id,
+            $contact->userId,
+            'Northwind',
+            'northwind@example.com',
+            'Northwind',
+            'new',
+        ));
+
+        try {
+            (new SendEstimate($repository))->execute(new Actor(1), (int) $contact->id, [
+                ['product_id' => 1, 'quantity' => 2],
+            ]);
+            $this->fail('Expected contact.not_validated');
+        } catch (CrmException $exception) {
+            $this->assertSame('contact.not_validated', $exception->errorCode);
+            $this->assertSame('F4', $exception->featureId);
+        }
+
+        $stored = $repository->findContact((int) $contact->id);
+        $this->assertNotNull($stored);
+        $this->assertFalse($stored->validated);
+        $this->assertSame('new', $stored->column);
+        $this->assertSame([], $repository->sentEmails());
+        $this->assertSame([], $repository->estimates());
+    }
+
     public function test_a_later_send_leaves_the_column_estimate_sent(): void
     {
         $repository = $this->repositoryWithProducts();
@@ -130,6 +164,7 @@ class ScenarioOneTest extends TestCase
             'northwind@example.com',
             'Northwind',
             'qualified',
+            validated: true,
         ));
         $action = new SendEstimate($repository);
         $lines = [
@@ -156,6 +191,7 @@ class ScenarioOneTest extends TestCase
             'northwind@example.com',
             'Northwind',
             'qualified',
+            validated: true,
         ));
         (new SendEstimate($repository))->execute(new Actor(1), (int) $contact->id, [
             ['product_id' => 1, 'quantity' => 2],
