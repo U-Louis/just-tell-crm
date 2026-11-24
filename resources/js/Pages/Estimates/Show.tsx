@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { submissionFailed } from '@/lib/clearOnSuccess';
@@ -70,9 +70,9 @@ export default function Show({ estimate, urls }: EstimatePageProps) {
                     </p>
                 ))}
                 <p data-saved-grand-total={estimate.grandTotal}>Saved grand total {estimate.grandTotal}</p>
-                <a href={urls.pdf} className={buttonVariants({ variant: 'outline', size: 'sm', className: 'self-start' })}>
-                    PDF
-                </a>
+                <Button type="button" variant="outline" size="sm" className="self-start" disabled>
+                    PDF (placeholder)
+                </Button>
                 {estimate.lines.map((line, index) => {
                     const quantityError = quantityErrors[index] ?? null;
 

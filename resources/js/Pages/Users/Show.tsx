@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { submissionFailed } from '@/lib/clearOnSuccess';
@@ -43,9 +43,9 @@ export default function Show({ user, urls }: UserPageProps) {
             <form noValidate onSubmit={submitUpdate} className="flex max-w-xl flex-col gap-4">
                 <h1 className="text-2xl font-medium">{user.name}</h1>
                 <p>Name {user.name}</p>
-                <a href={urls.pdf} className={buttonVariants({ variant: 'outline', size: 'sm', className: 'self-start' })}>
-                    PDF
-                </a>
+                <Button type="button" variant="outline" size="sm" className="self-start" disabled>
+                    PDF (placeholder)
+                </Button>
                 <Field className="gap-1.5" data-invalid={nameError ? true : undefined}>
                     <FieldLabel htmlFor="user-name">Name</FieldLabel>
                     <Input

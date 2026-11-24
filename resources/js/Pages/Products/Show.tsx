@@ -1,4 +1,4 @@
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { submissionFailed } from '@/lib/clearOnSuccess';
@@ -54,9 +54,9 @@ export default function Show({ product, urls }: ProductPageProps) {
                 <h1 className="text-2xl font-medium">{product.name}</h1>
                 <p>Name {product.name}</p>
                 <p>Unit price {product.unitPrice}</p>
-                <a href={urls.pdf} className={buttonVariants({ variant: 'outline', size: 'sm', className: 'self-start' })}>
-                    PDF
-                </a>
+                <Button type="button" variant="outline" size="sm" className="self-start" disabled>
+                    PDF (placeholder)
+                </Button>
                 <Field className="gap-1.5" data-invalid={errors.name ? true : undefined}>
                     <FieldLabel htmlFor="product-name">Name</FieldLabel>
                     <Input

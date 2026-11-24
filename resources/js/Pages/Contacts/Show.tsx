@@ -1,6 +1,6 @@
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
-import { Button, buttonVariants } from '@/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Field, FieldDescription, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
 import { submissionFailed } from '@/lib/clearOnSuccess';
@@ -152,9 +152,9 @@ export default function Show({ contact, products, urls }: ContactPageProps) {
                     </Alert>
                 )}
                 {contact.grandTotal !== null && <p data-saved-grand-total={contact.grandTotal}>Saved grand total {contact.grandTotal}</p>}
-                <a href={urls.pdf} className={buttonVariants({ variant: 'outline', size: 'sm', className: 'self-start' })}>
-                    PDF
-                </a>
+                <Button type="button" variant="outline" size="sm" className="self-start" disabled>
+                    PDF (placeholder)
+                </Button>
                 <Field className="gap-1.5" data-invalid={updateErrors.name ? true : undefined}>
                     <FieldLabel htmlFor="update-name">Name</FieldLabel>
                     <Input
